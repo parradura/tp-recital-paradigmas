@@ -7,16 +7,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Getter
 @ToString
 public class Cancion {
 
+    @Getter
     private String titulo;
     private List<RolRequerido> rolesRequeridos;
 
     public Cancion(String titulo, List<RolRequerido> rolesRequeridos) {
         this.titulo = titulo;
         this.rolesRequeridos = new ArrayList<>(rolesRequeridos);
+    }
+
+    public List<RolRequerido> getRolesRequeridos() {
+        return Collections.unmodifiableList(rolesRequeridos);
     }
 
     public List<RolRequerido> getRolesFaltantes() {
@@ -37,20 +41,32 @@ public class Cancion {
         double total = 0.0;
         for (RolRequerido rol : rolesRequeridos) {
             Artista artista = rol.getArtistaAsignado();
-            if (artista instanceof ArtistaExterno externo) {
-                total += externo.getCostoFinal(artistasBase);
+            if (artista != null) {
+                total += artista.getCostoFinal(artistasBase);
             }
         }
         return total;
     }
 
-    public boolean asignarArtista(RolRequerido rol, Artista artista) {
-        if (rol == null || artista == null) return false;
-        if (!rolesRequeridos.contains(rol)) return false;
-        if (!artista.puedeTocar(rol.getTipoRol())) return false;
+    public void asignarArtista(RolRequerido rol, Artista artista) {
+        if (rol == null || artista == null) {
+            throw new IllegalArgumentException("Rol y artista no pueden ser null");
+        }
+        if (!rolesRequeridos.contains(rol)) {
+            throw new IllegalArgumentException("El rol no pertenece a la canción " + titulo);
+        }
+        for (RolRequerido otroRol : rolesRequeridos) {
+            if (otroRol.getArtistaAsignado() == artista) {
+                throw new IllegalArgumentException("El artista " + artista.getNombre()
+                        + " ya está asignado a la canción " + titulo);
+            }
+        }
+        if (!artista.puedeTocar(rol.getTipoRol())) {
+            throw new IllegalArgumentException("El artista " + artista.getNombre()
+                    + " no puede tocar el rol " + rol.getTipoRol());
+        }
 
         rol.asignar(artista);
-        return true;
     }
 
     public List<Artista> getArtistasAsignados() {

@@ -1,5 +1,6 @@
 package com.grupo_rho.domain;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -12,8 +13,10 @@ import lombok.ToString;
  * Clase abstracta que representa a un artista.
  * Contiene la información y comportamiento común.
  */
-@Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public abstract class Artista {
+    @Getter
     @EqualsAndHashCode.Include
     @ToString.Include
     protected String nombre;
@@ -33,6 +36,14 @@ public abstract class Artista {
                 : new HashSet<>();
     }
 
+    public Set<RolTipo> getRolesHistoricos() {
+        return Collections.unmodifiableSet(rolesHistoricos);
+    }
+
+    public Set<String> getHistorialBandas() {
+        return Collections.unmodifiableSet(historialBandas);
+    }
+
     public boolean puedeTocar(RolTipo rol) {
         return rolesHistoricos.contains(rol);
     }
@@ -48,4 +59,5 @@ public abstract class Artista {
 
     public abstract double getCostoFinal(Iterable<ArtistaBase> artistasBase);
     public abstract int getMaxCanciones();
+    public abstract boolean esExterno();
 }

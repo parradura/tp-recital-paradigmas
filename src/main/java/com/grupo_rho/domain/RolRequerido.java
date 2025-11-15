@@ -8,7 +8,7 @@ import lombok.ToString;
 public class RolRequerido {
 
     private RolTipo tipoRol;
-    private Artista artistaAsignado; // puede ser base o externo
+    private Artista artistaAsignado;
 
     public RolRequerido(RolTipo tipoRol) {
         this.tipoRol = tipoRol;

@@ -1,8 +1,10 @@
 package com.grupo_rho.domain;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +19,7 @@ public class ArtistaExterno extends Artista {
     private double costoBase;
     private int maxCanciones;
     private int cancionesAsignadasEnRecital;
+    @Getter(AccessLevel.NONE)
     private Set<RolTipo> rolesEntrenados;
 
     public ArtistaExterno(String nombre,
@@ -29,6 +32,10 @@ public class ArtistaExterno extends Artista {
         this.maxCanciones = maxCanciones;
         this.cancionesAsignadasEnRecital = 0;
         this.rolesEntrenados = new HashSet<>();
+    }
+
+    public Set<RolTipo> getRolesEntrenados() {
+        return Collections.unmodifiableSet(rolesEntrenados);
     }
 
     public boolean puedeTomarOtraCancion() {
@@ -84,5 +91,10 @@ public class ArtistaExterno extends Artista {
     @Override
     public int getMaxCanciones() {
         return maxCanciones;
+    }
+
+    @Override
+    public boolean esExterno() {
+        return true;
     }
 }

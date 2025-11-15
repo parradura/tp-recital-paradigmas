@@ -10,6 +10,7 @@ public class SistemaDiscografica {
 
     private final Scanner scanner = new Scanner(System.in);
     private Recital recital;
+    private PlanificadorContrataciones planificador;
 
     public static void main(String[] args) {
         new SistemaDiscografica().run();
@@ -113,12 +114,12 @@ public class SistemaDiscografica {
         Cancion cancion = elegirCancion();
         if (cancion == null) return;
 
-        recital.contratarParaCancion(cancion);
+        planificador.contratarParaCancion(cancion);
         System.out.println("Contratación realizada para la canción '" + cancion.getTitulo() + "'.");
     }
 
     private void contratarParaTodoElRecital() {
-        recital.contratarParaTodoElRecital();
+        planificador.contratarParaTodoElRecital();
         System.out.println("Contratación realizada para todas las canciones posibles.");
     }
 
@@ -132,19 +133,21 @@ public class SistemaDiscografica {
         RolTipo rol = elegirRolTipo("Elegí el rol en el que querés entrenarlo: ");
         if (rol == null) return;
 
-        recital.entrenarArtista(artista, rol);
+        planificador.entrenarArtista(artista, rol);
         System.out.println("Artista entrenado correctamente en el rol " + rol);
     }
 
     private void listarArtistasContratados() {
-        List<ArtistaExterno> contratados = recital.getArtistasContratados();
+        List<Artista> contratados = recital.getArtistasContratados();
         if (contratados.isEmpty()) {
             System.out.println("Todavía no hay artistas externos contratados.");
         } else {
             System.out.println("Artistas externos contratados:");
-            for (ArtistaExterno a : contratados) {
-                System.out.printf("- %s (canciones asignadas: %d, costo base: %.2f)%n",
-                        a.getNombre(), a.getCancionesAsignadasEnRecital(), a.getCostoBase());
+            for (Artista a : contratados) {
+                if (a instanceof ArtistaExterno externo) {
+                    System.out.printf("- %s (canciones asignadas: %d, costo base: %.2f)%n",
+                            a.getNombre(), externo.getCancionesAsignadasEnRecital(), externo.getCostoBase());
+                }
             }
         }
     }
@@ -351,6 +354,7 @@ public class SistemaDiscografica {
         );
 
         this.recital = new Recital("Recital Homenaje a Queen", canciones, base, externos);
+        this.planificador = new PlanificadorContrataciones(this.recital);
 
         System.out.println("Datos de demo cargados.");
     }
