@@ -232,4 +232,50 @@ class PlanificadorContratacionesTest {
         assertTrue(externo.getRolesHistoricos().contains(RolTipo.PIANO));
         assertTrue(externo.getRolesEntrenados().contains(RolTipo.PIANO));
     }
+
+    @Test
+    void desasignarArtistaExternoRemueveAsignacionesYActualizaContador() {
+        ArtistaBase base = new ArtistaBase(
+                "Base",
+                Set.of(RolTipo.GUITARRA_ELECTRICA),
+                Set.of("Queen")
+        );
+
+        RolRequerido voz = new RolRequerido(RolTipo.VOZ_PRINCIPAL);
+        Cancion cancion = new Cancion("Test Song", List.of(voz));
+
+        ArtistaExterno externo = new ArtistaExterno(
+                "Cantante",
+                Set.of(RolTipo.VOZ_PRINCIPAL),
+                Set.of("Otra Banda"),
+                1000.0,
+                3,
+                TipoRecital.POP
+        );
+
+        Recital recital = new Recital(
+                "Recital Test",
+                List.of(cancion),
+                List.of(base),
+                List.of(externo),
+                TipoRecital.POP
+        );
+
+        PlanificadorContrataciones planificador = new PlanificadorContrataciones(recital);
+
+        // Asignamos al artista externo
+        voz.asignar(externo);
+        externo.registrarAsignacionEnCancion();
+
+        // Verificamos que esté asignado
+        assertTrue(voz.estaCubierto());
+        assertEquals(1, externo.getCancionesAsignadasEnRecital());
+
+        // Desasignamos usando el planificador
+        planificador.desasignarArtistaExterno(externo);
+
+        // Verificamos que se haya desasignado correctamente
+        assertFalse(voz.estaCubierto());
+        assertEquals(0, externo.getCancionesAsignadasEnRecital());
+    }
 }

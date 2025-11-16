@@ -4,21 +4,24 @@
     "roles": ["guitarra eléctrica", "coros"],
     "bandas": ["Queen"],
     "costo": 0,
-    "maxCanciones": 100
+    "maxCanciones": 100,
+    "tipoRecitalPreferido": "Country"
   },
   {
     "nombre": "Roger Taylor",
     "roles": ["batería", "coros"],
     "bandas": ["Queen"],
     "costo": 0,
-    "maxCanciones": 100
+    "maxCanciones": 100,
+    "tipoRecitalPreferido": "Rock"
   },
   {
     "nombre": "John Deacon",
     "roles": ["bajo"],
     "bandas": ["Queen"],
     "costo": 0,
-    "maxCanciones": 100
+    "maxCanciones": 100,
+    "tipoRecitalPreferido": "Country"
   },
 
   {
@@ -26,35 +29,40 @@
     "roles": ["voz principal"],
     "bandas": ["Wham!", "George Michael"],
     "costo": 1000,
-    "maxCanciones": 3
+    "maxCanciones": 3,
+    "tipoRecitalPreferido": "Rock"
   },
   {
     "nombre": "Elton John",
     "roles": ["voz principal", "piano"],
     "bandas": ["Elton John Band"],
     "costo": 1200,
-    "maxCanciones": 2
+    "maxCanciones": 2,
+    "tipoRecitalPreferido": "Country"
   },
   {
     "nombre": "David Bowie",
     "roles": ["voz principal"],
     "bandas": ["Tin Machine", "David Bowie"],
     "costo": 1500,
-    "maxCanciones": 2
+    "maxCanciones": 2,
+    "tipoRecitalPreferido": "Rock"
   },
   {
     "nombre": "Annie Lennox",
     "roles": ["voz principal", "coros"],
     "bandas": ["Eurythmics"],
     "costo": 900,
-    "maxCanciones": 2
+    "maxCanciones": 2,
+    "tipoRecitalPreferido": "Pop"
   },
   {
     "nombre": "Lisa Stansfield",
     "roles": ["voz principal"],
     "bandas": ["Lisa Stansfield"],
     "costo": 800,
-    "maxCanciones": 2
+    "maxCanciones": 2,
+    "tipoRecitalPreferido": "Rock"
   },
 
   {
@@ -62,27 +70,31 @@
     "roles": ["voz principal", "coros"],
     "bandas": ["Queen"],
     "costo": 700,
-    "maxCanciones": 1
+    "maxCanciones": 1,
+    "tipoRecitalPreferido": "Rock"
   },
   {
     "nombre": "MultiRolista Caro",
     "roles": ["voz principal", "guitarra eléctrica", "bajo", "batería", "piano", "coros"],
     "bandas": ["Session Musicians"],
     "costo": 3000,
-    "maxCanciones": 4
+    "maxCanciones": 4,
+    "tipoRecitalPreferido": "Rock"
   },
   {
     "nombre": "SoloBajistaEntrenable",
     "roles": ["bajo"],
     "bandas": ["Local Band"],
     "costo": 400,
-    "maxCanciones": 5
+    "maxCanciones": 5,
+    "tipoRecitalPreferido": "Pop"
   },
   {
     "nombre": "InutilLogistica",
     "roles": ["coros"],
     "bandas": ["Unknown"],
     "costo": 2000,
-    "maxCanciones": 0
+    "maxCanciones": 0,
+    "tipoRecitalPreferido": "Rock"
   }
 ]

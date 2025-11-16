@@ -78,4 +78,13 @@ public class Cancion {
         }
         return Collections.unmodifiableList(resultado);
     }
+
+    public void desasignarArtistaExterno(Artista artista) {
+        for (RolRequerido rol : rolesRequeridos) {
+            if (rol.estaCubierto() && rol.getArtistaAsignado().esExterno() && rol.getArtistaAsignado() == artista) {
+                rol.desasignar();
+                return;
+            }
+        }
+    }
 }

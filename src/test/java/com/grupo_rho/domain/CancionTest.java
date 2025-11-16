@@ -130,4 +130,26 @@ class CancionTest {
         assertEquals(1, artistas.size());
         assertThrows(UnsupportedOperationException.class, () -> artistas.add(cantante));
     }
+
+    @Test
+    void desvincularArtistaExternoFuncionaCorrectamente() {
+        RolRequerido voz = new RolRequerido(RolTipo.VOZ_PRINCIPAL);
+        Cancion cancion = new Cancion("Test Song", List.of(voz));
+
+        ArtistaExterno cantante = new ArtistaExterno(
+                "Cantante",
+                Set.of(RolTipo.VOZ_PRINCIPAL),
+                Set.of("Banda"),
+                1000.0,
+                3,
+                TipoRecital.POP
+        );
+
+        cancion.asignarArtista(voz, cantante);
+        assertTrue(voz.estaCubierto());
+
+        cancion.desasignarArtistaExterno(cantante);
+        assertFalse(voz.estaCubierto());
+    }
+
 }

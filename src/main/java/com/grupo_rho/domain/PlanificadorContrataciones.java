@@ -132,4 +132,13 @@ public class PlanificadorContrataciones {
             }
         }
     }
+
+    public void desasignarArtistaExterno(ArtistaExterno a) {
+        for (Cancion c : recital.getCanciones()) {
+            if (c.getArtistasAsignados().contains(a)) {
+                c.desasignarArtistaExterno(a);
+                a.cancelarAsignacionEnCancion();
+            }
+        }
+    }
 }

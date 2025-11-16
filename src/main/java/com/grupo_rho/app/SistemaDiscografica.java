@@ -47,6 +47,7 @@ public class SistemaDiscografica {
                     case 5 -> contratarParaTodoElRecital();
                     case 6 -> entrenarArtista();
                     case 7 -> listarArtistasContratados();
+                    case 8 -> desvincularArtista();
                     case 0 -> {
                         System.out.println("Saliendo del sistema. ¡Gracias!");
                         salir = true;
@@ -80,6 +81,7 @@ public class SistemaDiscografica {
         System.out.println("5) Contratar artistas para todo el recital");
         System.out.println("6) Entrenar artista externo");
         System.out.println("7) Listar artistas contratados");
+        System.out.println("8) Desvincular artista externo");
         System.out.println("0) Salir");
         System.out.println("--------------------------------------------------");
     }
@@ -503,6 +505,21 @@ public class SistemaDiscografica {
             }
         } else {
             System.out.println("Podés reintentar la contratación más adelante desde el menú.");
+        }
+    }
+
+    private void desvincularArtista(){
+        List<ArtistaExterno> artistas = recital.getArtistasContratados();
+
+        System.out.println("Por favor, indique el nombre del artista a desvincular");
+        String artista = leerLinea();
+
+        for (ArtistaExterno a : artistas) {
+            if (a.getNombre().equals(artista)) {
+                planificador.desasignarArtistaExterno(a);
+                System.out.println("El artista " + artista + " ha sido desvinculado correctamente.");
+                return;
+            }
         }
     }
 }
