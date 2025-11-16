@@ -11,8 +11,8 @@ import java.util.List;
 public class Cancion {
 
     @Getter
-    private String titulo;
-    private List<RolRequerido> rolesRequeridos;
+    private final String titulo;
+    private final List<RolRequerido> rolesRequeridos;
 
     public Cancion(String titulo, List<RolRequerido> rolesRequeridos) {
         this.titulo = titulo;

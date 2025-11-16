@@ -9,10 +9,10 @@ import java.util.*;
 public class Recital {
 
     @Getter
-    private String nombre;
-    private List<Cancion> canciones;
-    private List<ArtistaBase> artistasBase;
-    private List<ArtistaExterno> artistasExternosPool;
+    private final String nombre;
+    private final List<Cancion> canciones;
+    private final List<ArtistaBase> artistasBase;
+    private final List<ArtistaExterno> artistasExternosPool;
 
     public Recital(String nombre,
                    List<Cancion> canciones,

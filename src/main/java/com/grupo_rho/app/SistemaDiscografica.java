@@ -58,7 +58,7 @@ public class SistemaDiscografica {
                 System.out.println("[ERROR DE DOMINIO] " + e.getMessage());
             } catch (Exception e) {
                 System.out.println("[ERROR] Ocurrió un error inesperado: " + e.getMessage());
-                e.printStackTrace();
+                //e.printStackTrace();
             }
 
             System.out.println();

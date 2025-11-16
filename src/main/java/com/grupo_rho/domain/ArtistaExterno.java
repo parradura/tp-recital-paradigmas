@@ -17,10 +17,10 @@ import java.util.Set;
 public class ArtistaExterno extends Artista {
 
     private double costoBase;
-    private int maxCanciones;
+    private final int maxCanciones;
     private int cancionesAsignadasEnRecital;
     @Getter(AccessLevel.NONE)
-    private Set<RolTipo> rolesEntrenados;
+    private final Set<RolTipo> rolesEntrenados;
 
     public ArtistaExterno(String nombre,
                           Set<RolTipo> rolesHistoricos,

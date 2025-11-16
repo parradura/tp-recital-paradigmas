@@ -7,7 +7,7 @@ import lombok.ToString;
 @ToString
 public class RolRequerido {
 
-    private RolTipo tipoRol;
+    private final RolTipo tipoRol;
     private Artista artistaAsignado;
 
     public RolRequerido(RolTipo tipoRol) {
