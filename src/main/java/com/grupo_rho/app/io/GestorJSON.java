@@ -3,6 +3,7 @@ package com.grupo_rho.app.io;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grupo_rho.domain.*;
+import com.grupo_rho.domain.recital.TipoRecital;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +40,8 @@ public class GestorJSON {
 
             Set<String> bandas = new HashSet<>(dto.bandas());
 
+            TipoRecital tipoRecitalPreferido = mapTipoRecital(dto.tipoRecitalPreferido());
+            
             if (nombresBaseSet.contains(dto.nombre())) {
                 // Artista del sello (base)
                 artistasBase.add(new ArtistaBase(dto.nombre(), roles, bandas));
@@ -49,7 +52,8 @@ public class GestorJSON {
                         roles,
                         bandas,
                         dto.costo(),
-                        dto.maxCanciones()
+                        dto.maxCanciones(),                        
+                        tipoRecitalPreferido
                 ));
             }
         }
@@ -98,6 +102,27 @@ public class GestorJSON {
             case "piano" -> RolTipo.PIANO;
             case "coros" -> RolTipo.COROS;
             default -> throw new IllegalArgumentException("Rol desconocido en JSON: " + nombreRol);
+        };
+    }
+
+    private TipoRecital mapTipoRecital(String tipoRecital){
+         String normalizado = tipoRecital
+                .toLowerCase(Locale.ROOT)
+                .trim();
+
+        // simplificación rápida de acentos comunes
+        normalizado = normalizado
+                .replace("á", "a")
+                .replace("é", "e")
+                .replace("í", "i")
+                .replace("ó", "o")
+                .replace("ú", "u");
+
+        return switch (normalizado) {
+            case "country" ->  TipoRecital.COUNTRY;
+            case "pop" -> TipoRecital.POP;
+            case "rocket" -> TipoRecital.ROCK;
+            default -> throw new IllegalArgumentException("TipoRecital desconocido en JSON: " + tipoRecital);
         };
     }
 }

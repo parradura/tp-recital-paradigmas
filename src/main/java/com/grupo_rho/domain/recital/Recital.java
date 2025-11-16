@@ -1,5 +1,6 @@
-package com.grupo_rho.domain;
+package com.grupo_rho.domain.recital;
 
+import com.grupo_rho.domain.*;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -13,15 +14,18 @@ public class Recital {
     private final List<Cancion> canciones;
     private final List<ArtistaBase> artistasBase;
     private final List<ArtistaExterno> artistasExternosPool;
+    private final TipoRecital tipoRecital;
 
     public Recital(String nombre,
                    List<Cancion> canciones,
                    List<ArtistaBase> artistasBase,
-                   List<ArtistaExterno> artistasExternosPool) {
+                   List<ArtistaExterno> artistasExternosPool,
+                   TipoRecital tipoRecital) {
         this.nombre = nombre;
         this.canciones = new ArrayList<>(canciones);
         this.artistasBase = new ArrayList<>(artistasBase);
         this.artistasExternosPool = new ArrayList<>(artistasExternosPool);
+        this.tipoRecital = tipoRecital;
     }
 
     public List<ArtistaBase> getArtistasBase() {
@@ -52,12 +56,12 @@ public class Recital {
         return Collections.unmodifiableMap(acumulado);
     }
 
-    public List<Artista> getArtistasContratados() {
-        List<Artista> contratados = new ArrayList<>();
+    public List<ArtistaExterno> getArtistasContratados() {
+        List<ArtistaExterno> contratados = new ArrayList<>();
         for (Cancion c : canciones) {
             for (Artista a : c.getArtistasAsignados()) {
                 if (a.esExterno() && !contratados.contains(a)) {
-                    contratados.add(a);
+                    contratados.add((ArtistaExterno) a);
                 }
             }
         }
@@ -88,6 +92,31 @@ public class Recital {
         for (Cancion c : canciones) {
             total += c.getCostoTotal(artistasBase);
         }
+
+        total -= descuentoArtistaEstrella();
         return total;
+    }
+
+    public TipoRecital getTipoRecital(){
+        return tipoRecital;
+    }
+
+    private double descuentoArtistaEstrella(){
+        List<ArtistaExterno> externos = getArtistasContratados();
+        double descuento = 0.0;
+        for (ArtistaExterno externo : externos) {
+            if(externo.getTipoRecitalPreferido() != this.tipoRecital)
+                break;
+            double totalExternoAnt = 0.0,totalExterno = 0.0;
+            for (Cancion cancion : canciones) {
+                if (cancion.getArtistasAsignados().contains(externo)) {
+                    totalExterno += externo.getCostoFinal(artistasBase);
+                }
+            }
+            descuento = (totalExterno > totalExternoAnt ? totalExterno * 0.25 : descuento);
+        }
+        
+
+        return descuento;
     }
 }

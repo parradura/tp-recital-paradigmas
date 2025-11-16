@@ -1,5 +1,7 @@
 package com.grupo_rho.domain;
 
+import com.grupo_rho.domain.recital.Recital;
+import com.grupo_rho.domain.recital.TipoRecital;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -41,7 +43,8 @@ class RecitalTest {
                 "Recital Test",
                 List.of(somebody),
                 List.of(brian, roger, john),
-                List.of()
+                List.of(),
+                TipoRecital.ROCK
         );
     }
 
@@ -67,7 +70,8 @@ class RecitalTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Otra Banda"),
                 500.0,
-                2
+                2,
+                TipoRecital.COUNTRY
         );
 
         for (RolRequerido rol : cancion.getRolesRequeridos()) {
@@ -78,7 +82,7 @@ class RecitalTest {
             }
         }
 
-        List<Artista> contratados = recital.getArtistasContratados();
+        List<ArtistaExterno> contratados = recital.getArtistasContratados();
         assertEquals(1, contratados.size());
         assertTrue(contratados.get(0).esExterno());
         assertEquals("Cantante Externo", contratados.get(0).getNombre());
@@ -118,7 +122,8 @@ class RecitalTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Otra Banda"),
                 1000.0,
-                3
+                3,
+                TipoRecital.ROCK
         );
         for (RolRequerido rol : cancion.getRolesRequeridos()) {
             if (rol.getTipoRol() == RolTipo.VOZ_PRINCIPAL) {
@@ -140,7 +145,8 @@ class RecitalTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Otra Banda"),
                 1000.0,
-                3
+                3,
+                TipoRecital.COUNTRY
         );
 
         for (RolRequerido rol : cancion.getRolesRequeridos()) {

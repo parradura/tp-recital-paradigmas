@@ -2,6 +2,7 @@ package com.grupo_rho.domain;
 
 import com.grupo_rho.domain.exception.ArtistaNoEntrenableException;
 import com.grupo_rho.domain.exception.NoHayArtistasDisponiblesException;
+import com.grupo_rho.domain.recital.Recital;
 
 import java.util.*;
 
@@ -108,7 +109,7 @@ public class PlanificadorContrataciones {
             if (!externo.puedeTomarOtraCancion()) continue;
             if (yaAsignados.contains(externo)) continue;
 
-            double costo = externo.getCostoFinal(recital.getArtistasBase());
+            double costo = externo.getCostoFinal(recital.getArtistasBase(),recital.getTipoRecital());
             if (costo < mejorCosto) {
                 mejorCosto = costo;
                 mejor = externo;

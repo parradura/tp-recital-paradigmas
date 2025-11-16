@@ -5,6 +5,8 @@ import com.grupo_rho.domain.exception.ArtistaNoEntrenableException;
 import com.grupo_rho.domain.exception.NoHayArtistasDisponiblesException;
 import com.grupo_rho.app.io.DatosIniciales;
 import com.grupo_rho.app.io.GestorJSON;
+import com.grupo_rho.domain.recital.Recital;
+import com.grupo_rho.domain.recital.TipoRecital;
 
 import java.util.*;
 
@@ -153,16 +155,14 @@ public class SistemaDiscografica {
     }
 
     private void listarArtistasContratados() {
-        List<Artista> contratados = recital.getArtistasContratados();
+        List<ArtistaExterno> contratados = recital.getArtistasContratados();
         if (contratados.isEmpty()) {
             System.out.println("Todavía no hay artistas externos contratados.");
         } else {
             System.out.println("Artistas externos contratados:");
-            for (Artista a : contratados) {
-                if (a instanceof ArtistaExterno externo) {
-                    System.out.printf("- %s (canciones asignadas: %d, costo base: %.2f)%n",
-                            a.getNombre(), externo.getCancionesAsignadasEnRecital(), externo.getCostoBase());
-                }
+            for (ArtistaExterno a : contratados) {
+                System.out.printf("- %s (canciones asignadas: %d, costo base: %.2f)%n",
+                        a.getNombre(), a.getCancionesAsignadasEnRecital(), a.getCostoBase());
             }
         }
     }
@@ -264,7 +264,8 @@ public class SistemaDiscografica {
                 "Recital cargado desde JSON",
                 datos.getCanciones(),
                 datos.getArtistasBase(),
-                datos.getArtistasExternos()
+                datos.getArtistasExternos(),
+                TipoRecital.COUNTRY
         );
         this.planificador = new PlanificadorContrataciones(this.recital);
 
@@ -299,9 +300,10 @@ public class SistemaDiscografica {
         ArtistaExterno george = new ArtistaExterno(
                 "George Michael",
                 Set.of(RolTipo.VOZ_PRINCIPAL),
-                Set.of("Wham!", "George Michael"),
+                Set.of("Wham!", "George Michael"),  
                 1000.0,
-                3
+                3,
+                TipoRecital.POP
         );
 
         ArtistaExterno elton = new ArtistaExterno(
@@ -309,7 +311,8 @@ public class SistemaDiscografica {
                 Set.of(RolTipo.VOZ_PRINCIPAL, RolTipo.PIANO),
                 Set.of("Elton John Band"),
                 1200.0,
-                2
+                2,
+                TipoRecital.ROCK
         );
 
         ArtistaExterno bowie = new ArtistaExterno(
@@ -317,7 +320,8 @@ public class SistemaDiscografica {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Tin Machine", "David Bowie"),
                 1500.0,
-                2
+                2,
+                TipoRecital.COUNTRY
         );
 
         ArtistaExterno annie = new ArtistaExterno(
@@ -325,7 +329,8 @@ public class SistemaDiscografica {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Eurythmics"),
                 900.0,
-                2
+                2,
+                TipoRecital.COUNTRY
         );
 
         ArtistaExterno lisa = new ArtistaExterno(
@@ -333,7 +338,8 @@ public class SistemaDiscografica {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Lisa Stansfield"),
                 800.0,
-                2
+                2,
+                TipoRecital.POP
         );
 
         List<ArtistaExterno> externos = new ArrayList<>();
@@ -392,7 +398,7 @@ public class SistemaDiscografica {
                 underPressure
         );
 
-        this.recital = new Recital("Recital Homenaje a Queen", canciones, base, externos);
+        this.recital = new Recital("Recital Homenaje a Queen", canciones, base, externos,TipoRecital.ROCK);
         this.planificador = new PlanificadorContrataciones(this.recital);
 
         System.out.println("Datos de demo cargados.");
