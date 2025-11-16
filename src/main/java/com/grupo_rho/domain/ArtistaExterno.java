@@ -1,5 +1,6 @@
 package com.grupo_rho.domain;
 
+import com.grupo_rho.domain.recital.TipoRecital;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
@@ -21,17 +22,20 @@ public class ArtistaExterno extends Artista {
     private int cancionesAsignadasEnRecital;
     @Getter(AccessLevel.NONE)
     private final Set<RolTipo> rolesEntrenados;
+    private final TipoRecital tipoRecitalPreferido;
 
     public ArtistaExterno(String nombre,
                           Set<RolTipo> rolesHistoricos,
                           Set<String> historialBandas,
                           double costoBase,
-                          int maxCanciones) {
+                          int maxCanciones,
+                          TipoRecital tipoRecitalPreferido) {
         super(nombre, rolesHistoricos, historialBandas);
         this.costoBase = costoBase;
         this.maxCanciones = maxCanciones;
         this.cancionesAsignadasEnRecital = 0;
         this.rolesEntrenados = new HashSet<>();
+        this.tipoRecitalPreferido = tipoRecitalPreferido;
     }
 
     public Set<RolTipo> getRolesEntrenados() {

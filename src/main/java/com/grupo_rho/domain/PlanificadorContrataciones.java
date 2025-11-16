@@ -2,6 +2,7 @@ package com.grupo_rho.domain;
 
 import com.grupo_rho.domain.exception.ArtistaNoEntrenableException;
 import com.grupo_rho.domain.exception.NoHayArtistasDisponiblesException;
+import com.grupo_rho.domain.recital.Recital;
 
 import java.util.*;
 

@@ -2,6 +2,8 @@ package com.grupo_rho.domain;
 
 import org.junit.jupiter.api.Test;
 
+import com.grupo_rho.domain.recital.TipoRecital;
+
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,7 +17,8 @@ class ArtistaExternoTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Wham!", "George Michael"),
                 1000.0,
-                2
+                2,
+                TipoRecital.POP
         );
 
         assertTrue(externo.puedeTomarOtraCancion());
@@ -40,7 +43,8 @@ class ArtistaExternoTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Banda"),
                 500.0,
-                3
+                3,
+                TipoRecital.COUNTRY
         );
 
         externo.registrarAsignacionEnCancion();
@@ -65,7 +69,8 @@ class ArtistaExternoTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Tin Machine", "David Bowie"),
                 1000.0,
-                2
+                2,
+                TipoRecital.ROCK
         );
 
         double costoOriginal = externo.getCostoBase();
@@ -87,7 +92,8 @@ class ArtistaExternoTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Eurythmics"),
                 900.0,
-                2
+                2,
+                TipoRecital.POP
         );
 
         externo.entrenar(RolTipo.COROS);
@@ -111,7 +117,8 @@ class ArtistaExternoTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Queen"),
                 1000.0,
-                3
+                3,
+                TipoRecital.COUNTRY
         );
 
         double costoConDescuento = externo.getCostoFinal(Set.of(brian));
@@ -131,7 +138,8 @@ class ArtistaExternoTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Otra Banda"),
                 1000.0,
-                3
+                3,
+                TipoRecital.POP
         );
 
         double costo = externo.getCostoFinal(Set.of(brian));

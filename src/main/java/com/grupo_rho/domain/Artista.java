@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -20,10 +19,8 @@ public abstract class Artista {
     @EqualsAndHashCode.Include
     @ToString.Include
     protected String nombre;
-
     protected Set<RolTipo> rolesHistoricos;
     protected Set<String> historialBandas;
-
     protected Artista(String nombre,
                       Set<RolTipo> rolesHistoricos,
                       Set<String> historialBandas) {

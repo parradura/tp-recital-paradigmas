@@ -2,6 +2,8 @@ package com.grupo_rho.domain;
 
 import com.grupo_rho.domain.exception.ArtistaNoEntrenableException;
 import com.grupo_rho.domain.exception.NoHayArtistasDisponiblesException;
+import com.grupo_rho.domain.recital.Recital;
+import com.grupo_rho.domain.recital.TipoRecital;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -30,21 +32,24 @@ class PlanificadorContratacionesTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Otra Banda"),
                 2000.0,
-                5
+                5,
+                TipoRecital.ROCK
         );
         ArtistaExterno barato = new ArtistaExterno(
                 "Cantante Barato",
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Otra Banda"),
                 500.0,
-                5
+                5,
+                TipoRecital.COUNTRY
         );
 
         Recital recital = new Recital(
                 "Recital Test",
                 List.of(cancion),
                 List.of(base),
-                List.of(caro, barato)
+                List.of(caro, barato),
+                TipoRecital.ROCK
         );
 
         PlanificadorContrataciones planificador = new PlanificadorContrataciones(recital);
@@ -74,14 +79,16 @@ class PlanificadorContratacionesTest {
                 Set.of(RolTipo.GUITARRA_ELECTRICA),
                 Set.of("Otra Banda"),
                 1000.0,
-                3
+                3,
+                TipoRecital.COUNTRY
         );
 
         Recital recital = new Recital(
                 "Recital Test",
                 List.of(cancion),
                 List.of(base),
-                List.of(soloGuitarra)
+                List.of(soloGuitarra),
+                TipoRecital.ROCK
         );
 
         PlanificadorContrataciones planificador = new PlanificadorContrataciones(recital);
@@ -114,21 +121,24 @@ class PlanificadorContratacionesTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Otra"),
                 500.0,
-                1
+                1,
+                TipoRecital.POP
         );
         ArtistaExterno caro = new ArtistaExterno(
                 "Caro",
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Otra"),
                 2000.0,
-                2
+                2,
+                TipoRecital.ROCK
         );
 
         Recital recital = new Recital(
                 "Recital Test",
                 List.of(c1, c2),
                 List.of(base),
-                List.of(barato, caro)
+                List.of(barato, caro),
+                TipoRecital.ROCK
         );
 
         PlanificadorContrataciones planificador = new PlanificadorContrataciones(recital);
@@ -161,14 +171,16 @@ class PlanificadorContratacionesTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Otra Banda"),
                 1000.0,
-                3
+                3,
+                TipoRecital.POP
         );
 
         Recital recital = new Recital(
                 "Recital Test",
                 List.of(cancion),
                 List.of(base),
-                List.of(externo)
+                List.of(externo),
+                TipoRecital.POP
         );
 
         PlanificadorContrataciones planificador = new PlanificadorContrataciones(recital);
@@ -201,14 +213,16 @@ class PlanificadorContratacionesTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Otra Banda"),
                 1000.0,
-                3
+                3,
+                TipoRecital.COUNTRY
         );
 
         Recital recital = new Recital(
                 "Recital Test",
                 List.of(cancion),
                 List.of(base),
-                List.of(externo)
+                List.of(externo),
+                TipoRecital.COUNTRY
         );
 
         PlanificadorContrataciones planificador = new PlanificadorContrataciones(recital);

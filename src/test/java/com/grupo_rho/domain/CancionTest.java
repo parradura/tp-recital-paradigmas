@@ -2,6 +2,8 @@ package com.grupo_rho.domain;
 
 import org.junit.jupiter.api.Test;
 
+import com.grupo_rho.domain.recital.TipoRecital;
+
 import java.util.List;
 import java.util.Set;
 
@@ -100,7 +102,8 @@ class CancionTest {
                 Set.of(RolTipo.VOZ_PRINCIPAL),
                 Set.of("Otra Banda"),
                 1000.0,
-                3
+                3,
+                TipoRecital.COUNTRY
         );
 
         cancion.asignarArtista(voz, cantanteExterno);
