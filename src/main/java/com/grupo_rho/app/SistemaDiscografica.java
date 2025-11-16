@@ -3,6 +3,8 @@ package com.grupo_rho.app;
 import com.grupo_rho.domain.*;
 import com.grupo_rho.domain.exception.ArtistaNoEntrenableException;
 import com.grupo_rho.domain.exception.NoHayArtistasDisponiblesException;
+import com.grupo_rho.app.io.DatosIniciales;
+import com.grupo_rho.app.io.GestorJSON;
 
 import java.util.*;
 
@@ -12,6 +14,8 @@ public class SistemaDiscografica {
     private Recital recital;
     private PlanificadorContrataciones planificador;
 
+    private final GestorJSON gestorJSON = new GestorJSON();
+
     public static void main(String[] args) {
         new SistemaDiscografica().run();
     }
@@ -19,8 +23,13 @@ public class SistemaDiscografica {
     private void run() {
         System.out.println("=== Sistema Discográfica - Recital Especial ===");
 
-        // TODO: Cargar desde JSON
-        cargarDatosDemo();
+        try {
+            cargarDatosDesdeJson();
+        } catch (Exception e) {
+            System.out.println("No se pudieron cargar los datos desde JSON (" + e.getMessage() + ").");
+            System.out.println("Se usarán datos de demo por defecto.");
+            cargarDatosDemo();
+        }
 
         boolean salir = false;
         while (!salir) {
@@ -42,8 +51,10 @@ public class SistemaDiscografica {
                     }
                     default -> System.out.println("Opción inválida.");
                 }
-            } catch (NoHayArtistasDisponiblesException |
-                     ArtistaNoEntrenableException e) {
+            } catch (NoHayArtistasDisponiblesException e) {
+                System.out.println("[ERROR DE DOMINIO] " + e.getMessage());
+                manejarFaltaDeArtistas(e);
+            } catch (ArtistaNoEntrenableException e) {
                 System.out.println("[ERROR DE DOMINIO] " + e.getMessage());
             } catch (Exception e) {
                 System.out.println("[ERROR] Ocurrió un error inesperado: " + e.getMessage());
@@ -52,6 +63,10 @@ public class SistemaDiscografica {
 
             System.out.println();
         }
+    }
+
+    private String leerLinea() {
+        return scanner.nextLine();
     }
 
     private void mostrarMenu() {
@@ -232,6 +247,30 @@ public class SistemaDiscografica {
     // Datos de demo (después se reemplazan con lectura JSON)
     // ------------------------------------------------------------
 
+    private void cargarDatosDesdeJson() throws java.io.IOException {
+        System.out.println("Cargando datos desde JSON...");
+
+        String pathArtistas = "data/artistas.json";
+        String pathRecital = "data/recital.json";
+        String pathArtistasBase = "data/artistas-discografica.json";
+
+        DatosIniciales datos = gestorJSON.cargarDatos(
+                pathArtistas,
+                pathRecital,
+                pathArtistasBase
+        );
+
+        this.recital = new Recital(
+                "Recital cargado desde JSON",
+                datos.getCanciones(),
+                datos.getArtistasBase(),
+                datos.getArtistasExternos()
+        );
+        this.planificador = new PlanificadorContrataciones(this.recital);
+
+        System.out.println("Datos cargados correctamente desde JSON.");
+    }
+
     private void cargarDatosDemo() {
         System.out.println("Cargando datos de demo...");
 
@@ -365,5 +404,99 @@ public class SistemaDiscografica {
             lista.add(new RolRequerido(t));
         }
         return lista;
+    }
+
+    private List<ArtistaExterno> encontrarArtistasEntrenablesParaRol(RolTipo rol) {
+        List<ArtistaExterno> resultado = new ArrayList<>();
+
+        for (ArtistaExterno ext : recital.getArtistasExternosPool()) {
+            if (ext.getCancionesAsignadasEnRecital() > 0) continue;
+            if (ext.getRolesHistoricos().contains(rol)) continue;
+            if (ext.getMaxCanciones() <= 0) continue;
+
+            resultado.add(ext);
+        }
+
+        return resultado;
+    }
+
+    private void manejarFaltaDeArtistas(NoHayArtistasDisponiblesException e) {
+        Cancion cancion = e.getCancion();
+        RolTipo rol = e.getRolFaltante();
+
+        System.out.println();
+        System.out.println("No se pudo cubrir el rol " + rol +
+                " en la canción '" + cancion.getTitulo() + "'.");
+        System.out.println("Vamos a buscar si hay artistas externos que puedan entrenarse para este rol.");
+        System.out.println();
+
+        var entrenables = encontrarArtistasEntrenablesParaRol(rol);
+
+        if (entrenables.isEmpty()) {
+            System.out.println("No hay artistas externos disponibles que puedan ser entrenados para este rol.");
+            System.out.println("Sugerencia: revisá tus archivos JSON o agregá más artistas al plantel.");
+            return;
+        }
+
+        System.out.println("Artistas entrenables para el rol " + rol + ":");
+        for (int i = 0; i < entrenables.size(); i++) {
+            ArtistaExterno a = entrenables.get(i);
+            double costoActual = a.getCostoBase();
+            double costoEntrenado = costoActual * 1.5;
+
+            System.out.printf(
+                    "%d) %s | roles actuales: %s | maxCanciones: %d | asignadas: %d | costo actual: %.2f | costo si se entrena: %.2f%n",
+                    i + 1,
+                    a.getNombre(),
+                    a.getRolesHistoricos(),
+                    a.getMaxCanciones(),
+                    a.getCancionesAsignadasEnRecital(),
+                    costoActual,
+                    costoEntrenado
+            );
+        }
+        System.out.println();
+
+        System.out.println("¿Querés entrenar a alguno de estos artistas para el rol " + rol + "? (s/n)");
+        String respuesta = leerLinea().trim().toLowerCase();
+
+        if (!respuesta.equals("s")) {
+            System.out.println("No se entrenó a ningún artista. La operación de contratación quedó incompleta.");
+            return;
+        }
+
+        int indice = leerEntero("Ingresá el número de artista a entrenar: ");
+        if (indice < 1 || indice > entrenables.size()) {
+            System.out.println("Número inválido. No se entrenó a ningún artista.");
+            return;
+        }
+
+        ArtistaExterno seleccionado = entrenables.get(indice - 1);
+
+        try {
+            planificador.entrenarArtista(seleccionado, rol);
+            System.out.println("Se entrenó a " + seleccionado.getNombre() +
+                    " en el rol " + rol + ".");
+        } catch (ArtistaNoEntrenableException ex) {
+            System.out.println("[ERROR DE DOMINIO] " + ex.getMessage());
+            return;
+        }
+
+        System.out.println("¿Querés reintentar la contratación de la canción '" +
+                cancion.getTitulo() + "' ahora que " + seleccionado.getNombre() +
+                " sabe el rol " + rol + "? (s/n)");
+        String reintento = leerLinea().trim().toLowerCase();
+
+        if (reintento.equals("s")) {
+            try {
+                planificador.contratarParaCancion(cancion);
+                System.out.println("Contratación realizada para la canción '" + cancion.getTitulo() + "'.");
+            } catch (NoHayArtistasDisponiblesException ex2) {
+                System.out.println("[ERROR DE DOMINIO] " + ex2.getMessage());
+                manejarFaltaDeArtistas(ex2);
+            }
+        } else {
+            System.out.println("Podés reintentar la contratación más adelante desde el menú.");
+        }
     }
 }

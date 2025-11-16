@@ -1,0 +1,69 @@
+[
+  {
+    "titulo": "Somebody to Love",
+    "rolesRequeridos": [
+      "voz principal",
+      "guitarra eléctrica",
+      "bajo",
+      "batería",
+      "piano",
+      "coros"
+    ]
+  },
+  {
+    "titulo": "We Will Rock You",
+    "rolesRequeridos": [
+      "voz principal",
+      "guitarra eléctrica",
+      "bajo",
+      "batería",
+      "coros"
+    ]
+  },
+  {
+    "titulo": "These Are the Days of Our Lives",
+    "rolesRequeridos": [
+      "voz principal",
+      "guitarra eléctrica",
+      "bajo",
+      "batería"
+    ]
+  },
+  {
+    "titulo": "Under Pressure",
+    "rolesRequeridos": [
+      "voz principal",
+      "voz principal",
+      "guitarra eléctrica",
+      "bajo",
+      "batería",
+      "coros"
+    ]
+  },
+  {
+    "titulo": "Love of My Life",
+    "rolesRequeridos": [
+      "voz principal",
+      "guitarra eléctrica",
+      "piano"
+    ]
+  },
+  {
+    "titulo": "Song Solo Piano",
+    "rolesRequeridos": [
+      "piano"
+    ]
+  },
+  {
+    "titulo": "Bohemian Rhapsody",
+    "rolesRequeridos": [
+      "voz principal", "guitarra electrica", "coros", "bateria", "bajo"
+    ]
+  },
+  {
+    "titulo": "I Want to Break Free",
+    "rolesRequeridos": [
+      "voz principal", "guitarra electrica", "coros", "bateria", "bajo"
+    ]
+  }
+]

@@ -25,6 +25,8 @@ public class PlanificadorContrataciones {
      *  - lanza NoHayArtistasDisponiblesException
      */
     public void contratarParaCancion(Cancion c) {
+        asignarArtistasBase(c);
+
         List<RolRequerido> faltantes = new ArrayList<>(c.getRolesFaltantes());
         if (faltantes.isEmpty()) {
             return;
@@ -34,7 +36,7 @@ public class PlanificadorContrataciones {
         Map<ArtistaExterno, Integer> usosNuevosPorArtista = new HashMap<>();
 
         for (RolRequerido rol : faltantes) {
-            ArtistaExterno mejor = buscarMasBaratoParaRol(rol.getTipoRol());
+            ArtistaExterno mejor = buscarMasBaratoParaRol(rol.getTipoRol(), c);
             if (mejor == null) {
                 deshacerAsignaciones(asignadosEnEstaOperacion, usosNuevosPorArtista);
                 throw new NoHayArtistasDisponiblesException(c, rol.getTipoRol());
@@ -75,17 +77,41 @@ public class PlanificadorContrataciones {
         artista.entrenar(rol);
     }
 
-    private ArtistaExterno buscarMasBaratoParaRol(RolTipo rol) {
+    private void asignarArtistasBase(Cancion c) {
+        List<RolRequerido> faltantes = new ArrayList<>(c.getRolesFaltantes());
+
+        var yaAsignados = new java.util.HashSet<>(c.getArtistasAsignados());
+
+        for (RolRequerido rol : faltantes) {
+            for (ArtistaBase base : recital.getArtistasBase()) {
+
+                if (yaAsignados.contains(base)) continue;
+
+                if (base.puedeTocar(rol.getTipoRol())) {
+                    c.asignarArtista(rol, base);
+
+                    yaAsignados.add(base);
+                    break;
+                }
+            }
+        }
+    }
+
+    private ArtistaExterno buscarMasBaratoParaRol(RolTipo rol, Cancion cancion) {
         ArtistaExterno mejor = null;
         double mejorCosto = Double.MAX_VALUE;
 
+        var yaAsignados = new HashSet<>(cancion.getArtistasAsignados());
+
         for (ArtistaExterno externo : recital.getArtistasExternosPool()) {
-            if (externo.puedeTocar(rol) && externo.puedeTomarOtraCancion()) {
-                double costo = externo.getCostoFinal(recital.getArtistasBase());
-                if (costo < mejorCosto) {
-                    mejorCosto = costo;
-                    mejor = externo;
-                }
+            if (!externo.puedeTocar(rol)) continue;
+            if (!externo.puedeTomarOtraCancion()) continue;
+            if (yaAsignados.contains(externo)) continue;
+
+            double costo = externo.getCostoFinal(recital.getArtistasBase());
+            if (costo < mejorCosto) {
+                mejorCosto = costo;
+                mejor = externo;
             }
         }
 

@@ -1,0 +1,88 @@
+[
+  {
+    "nombre": "Brian May",
+    "roles": ["guitarra eléctrica", "coros"],
+    "bandas": ["Queen"],
+    "costo": 0,
+    "maxCanciones": 100
+  },
+  {
+    "nombre": "Roger Taylor",
+    "roles": ["batería", "coros"],
+    "bandas": ["Queen"],
+    "costo": 0,
+    "maxCanciones": 100
+  },
+  {
+    "nombre": "John Deacon",
+    "roles": ["bajo"],
+    "bandas": ["Queen"],
+    "costo": 0,
+    "maxCanciones": 100
+  },
+
+  {
+    "nombre": "George Michael",
+    "roles": ["voz principal"],
+    "bandas": ["Wham!", "George Michael"],
+    "costo": 1000,
+    "maxCanciones": 3
+  },
+  {
+    "nombre": "Elton John",
+    "roles": ["voz principal", "piano"],
+    "bandas": ["Elton John Band"],
+    "costo": 1200,
+    "maxCanciones": 2
+  },
+  {
+    "nombre": "David Bowie",
+    "roles": ["voz principal"],
+    "bandas": ["Tin Machine", "David Bowie"],
+    "costo": 1500,
+    "maxCanciones": 2
+  },
+  {
+    "nombre": "Annie Lennox",
+    "roles": ["voz principal", "coros"],
+    "bandas": ["Eurythmics"],
+    "costo": 900,
+    "maxCanciones": 2
+  },
+  {
+    "nombre": "Lisa Stansfield",
+    "roles": ["voz principal"],
+    "bandas": ["Lisa Stansfield"],
+    "costo": 800,
+    "maxCanciones": 2
+  },
+
+  {
+    "nombre": "Invitado Queen Barato",
+    "roles": ["voz principal", "coros"],
+    "bandas": ["Queen"],
+    "costo": 700,
+    "maxCanciones": 1
+  },
+  {
+    "nombre": "MultiRolista Caro",
+    "roles": ["voz principal", "guitarra eléctrica", "bajo", "batería", "piano", "coros"],
+    "bandas": ["Session Musicians"],
+    "costo": 3000,
+    "maxCanciones": 4
+  },
+  {
+    "nombre": "SoloBajistaEntrenable",
+    "roles": ["bajo"],
+    "bandas": ["Local Band"],
+    "costo": 400,
+    "maxCanciones": 5
+  },
+  {
+    "nombre": "InutilLogistica",
+    "roles": ["coros"],
+    "bandas": ["Unknown"],
+    "costo": 2000,
+    "maxCanciones": 0
+  }
+]
