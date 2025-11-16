@@ -109,7 +109,7 @@ public class PlanificadorContrataciones {
             if (!externo.puedeTomarOtraCancion()) continue;
             if (yaAsignados.contains(externo)) continue;
 
-            double costo = externo.getCostoFinal(recital.getArtistasBase(),recital.getTipoRecital());
+            double costo = externo.getCostoFinal(recital.getArtistasBase());
             if (costo < mejorCosto) {
                 mejorCosto = costo;
                 mejor = externo;
