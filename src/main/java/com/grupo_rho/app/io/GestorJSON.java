@@ -2,6 +2,9 @@ package com.grupo_rho.app.io;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.grupo_rho.app.io.in.ArtistaJsonDTO;
+import com.grupo_rho.app.io.in.CancionJsonDTO;
+import com.grupo_rho.app.io.in.RecitalJsonDTO;
 import com.grupo_rho.domain.*;
 import com.grupo_rho.domain.recital.TipoRecital;
 
@@ -18,30 +21,45 @@ public class GestorJSON {
                                       String pathRecital,
                                       String pathArtistasBase) throws IOException {
         // 1) Leer artistas.json
-        List<ArtistaJsonDto> artistasDto = mapper.readValue(
+        List<ArtistaJsonDTO> artistasDto = mapper.readValue(
                 new File(pathArtistas),
-                new TypeReference<List<ArtistaJsonDto>>() {}
+                new TypeReference<List<ArtistaJsonDTO>>() {
+                }
         );
 
         // 2) Leer artistas-discografica.json (nombres de artistas base)
         List<String> nombresBase = mapper.readValue(
                 new File(pathArtistasBase),
-                new TypeReference<List<String>>() {}
+                new TypeReference<List<String>>() {
+                }
         );
         Set<String> nombresBaseSet = new HashSet<>(nombresBase);
 
         List<ArtistaBase> artistasBase = new ArrayList<>();
         List<ArtistaExterno> artistasExternos = new ArrayList<>();
 
-        for (ArtistaJsonDto dto : artistasDto) {
+        for (ArtistaJsonDTO dto : artistasDto) {
             Set<RolTipo> roles = dto.roles().stream()
-                    .map(this::mapRolTipo)
+                    .map(RolTipo::valueOf)
                     .collect(Collectors.toSet());
 
             Set<String> bandas = new HashSet<>(dto.bandas());
+            String tipoPrefStr = dto.tipoRecitalPreferido();
+            TipoRecital tipoRecitalPreferido = null;
 
-            TipoRecital tipoRecitalPreferido = mapTipoRecital(dto.tipoRecitalPreferido());
-            
+            if (tipoPrefStr != null && !tipoPrefStr.isBlank()) {
+                try {
+                    tipoRecitalPreferido = TipoRecital.valueOf(tipoPrefStr.trim());
+                } catch (IllegalArgumentException ex) {
+                    throw new IllegalArgumentException(
+                            "tipoRecitalPreferido inválido para artista '" + dto.nombre() +
+                                    "': '" + tipoPrefStr + "'. Valores válidos: " +
+                                    Arrays.toString(TipoRecital.values()),
+                            ex
+                    );
+                }
+            }
+
             if (nombresBaseSet.contains(dto.nombre())) {
                 // Artista del sello (base)
                 artistasBase.add(new ArtistaBase(dto.nombre(), roles, bandas));
@@ -52,77 +70,37 @@ public class GestorJSON {
                         roles,
                         bandas,
                         dto.costo(),
-                        dto.maxCanciones(),                        
+                        dto.maxCanciones(),
                         tipoRecitalPreferido
                 ));
             }
         }
 
         // 3) Leer recital.json
-        List<CancionJsonDto> cancionesDto = mapper.readValue(
+        RecitalJsonDTO recitalDto = mapper.readValue(
                 new File(pathRecital),
-                new TypeReference<List<CancionJsonDto>>() {}
+                RecitalJsonDTO.class
         );
 
+        String nombreRecital = recitalDto.nombre();
+        TipoRecital tipoRecital = TipoRecital.valueOf(recitalDto.tipoRecital());
+
         List<Cancion> canciones = new ArrayList<>();
-        for (CancionJsonDto cDto : cancionesDto) {
+        for (CancionJsonDTO cDto : recitalDto.canciones()) {
             List<RolRequerido> rolesRequeridos = new ArrayList<>();
             for (String rolStr : cDto.rolesRequeridos()) {
-                RolTipo tipo = mapRolTipo(rolStr);
+                RolTipo tipo = RolTipo.valueOf(rolStr);
                 rolesRequeridos.add(new RolRequerido(tipo));
             }
             canciones.add(new Cancion(cDto.titulo(), rolesRequeridos));
         }
 
-        return new DatosIniciales(artistasBase, artistasExternos, canciones);
-    }
-
-    /**
-     * Mapea el string del JSON (ej. "voz principal") a tu enum RolTipo.
-     * Tolera mayúsculas/minúsculas y acentos básicos.
-     */
-    private RolTipo mapRolTipo(String nombreRol) {
-        String normalizado = nombreRol
-                .toLowerCase(Locale.ROOT)
-                .trim();
-
-        // simplificación rápida de acentos comunes
-        normalizado = normalizado
-                .replace("á", "a")
-                .replace("é", "e")
-                .replace("í", "i")
-                .replace("ó", "o")
-                .replace("ú", "u");
-
-        return switch (normalizado) {
-            case "voz principal" -> RolTipo.VOZ_PRINCIPAL;
-            case "guitarra electrica" -> RolTipo.GUITARRA_ELECTRICA;
-            case "bajo" -> RolTipo.BAJO;
-            case "bateria" -> RolTipo.BATERIA;
-            case "piano" -> RolTipo.PIANO;
-            case "coros" -> RolTipo.COROS;
-            default -> throw new IllegalArgumentException("Rol desconocido en JSON: " + nombreRol);
-        };
-    }
-
-    private TipoRecital mapTipoRecital(String tipoRecital){
-         String normalizado = tipoRecital
-                .toLowerCase(Locale.ROOT)
-                .trim();
-
-        // simplificación rápida de acentos comunes
-        normalizado = normalizado
-                .replace("á", "a")
-                .replace("é", "e")
-                .replace("í", "i")
-                .replace("ó", "o")
-                .replace("ú", "u");
-
-        return switch (normalizado) {
-            case "country" ->  TipoRecital.COUNTRY;
-            case "pop" -> TipoRecital.POP;
-            case "rocket" -> TipoRecital.ROCK;
-            default -> throw new IllegalArgumentException("TipoRecital desconocido en JSON: " + tipoRecital);
-        };
+        return new DatosIniciales(
+                nombreRecital,
+                tipoRecital,
+                artistasBase,
+                artistasExternos,
+                canciones
+        );
     }
 }

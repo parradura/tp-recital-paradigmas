@@ -1,7 +1,7 @@
 [
   {
     "nombre": "Brian May",
-    "roles": ["guitarra eléctrica", "coros"],
+    "roles": ["GUITARRA_ELECTRICA", "COROS"],
     "bandas": ["Queen"],
     "costo": 0,
     "maxCanciones": 100,
@@ -9,7 +9,7 @@
   },
   {
     "nombre": "Roger Taylor",
-    "roles": ["batería", "coros"],
+    "roles": ["BATERIA", "COROS"],
     "bandas": ["Queen"],
     "costo": 0,
     "maxCanciones": 100,
@@ -17,7 +17,7 @@
   },
   {
     "nombre": "John Deacon",
-    "roles": ["bajo"],
+    "roles": ["BAJO"],
     "bandas": ["Queen"],
     "costo": 0,
     "maxCanciones": 100,
@@ -25,7 +25,7 @@
   },
   {
     "nombre": "Session Player 1",
-    "roles": ["voz principal", "guitarra eléctrica", "bajo", "batería", "piano", "coros"],
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
     "bandas": ["Session Musicians"],
     "costo": 1000,
     "maxCanciones": 10,
@@ -33,7 +33,7 @@
   },
   {
     "nombre": "Session Player 2",
-    "roles": ["voz principal", "guitarra eléctrica", "bajo", "batería", "piano", "coros"],
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
     "bandas": ["Session Musicians"],
     "costo": 1100,
     "maxCanciones": 10,
@@ -41,7 +41,7 @@
   },
   {
     "nombre": "Session Player 3",
-    "roles": ["voz principal", "guitarra eléctrica", "bajo", "batería", "piano", "coros"],
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
     "bandas": ["Session Musicians"],
     "costo": 1200,
     "maxCanciones": 10,
@@ -49,7 +49,7 @@
   },
   {
     "nombre": "Session Player 4",
-    "roles": ["voz principal", "guitarra eléctrica", "bajo", "batería", "piano", "coros"],
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
     "bandas": ["Session Musicians"],
     "costo": 1300,
     "maxCanciones": 10,
@@ -57,7 +57,7 @@
   },
   {
     "nombre": "Session Player 5",
-    "roles": ["voz principal", "guitarra eléctrica", "bajo", "batería", "piano", "coros"],
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
     "bandas": ["Session Musicians"],
     "costo": 1400,
     "maxCanciones": 10,
@@ -65,7 +65,7 @@
   },
   {
     "nombre": "Session Player 6",
-    "roles": ["voz principal", "guitarra eléctrica", "bajo", "batería", "piano", "coros"],
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
     "bandas": ["Session Musicians"],
     "costo": 1500,
     "maxCanciones": 10,

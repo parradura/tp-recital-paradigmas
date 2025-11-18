@@ -14,6 +14,7 @@ public class Recital {
     private final List<Cancion> canciones;
     private final List<ArtistaBase> artistasBase;
     private final List<ArtistaExterno> artistasExternosPool;
+    @Getter
     private final TipoRecital tipoRecital;
 
     public Recital(String nombre,
@@ -97,26 +98,29 @@ public class Recital {
         return total;
     }
 
-    public TipoRecital getTipoRecital(){
-        return tipoRecital;
-    }
-
     private double descuentoArtistaEstrella(){
         List<ArtistaExterno> externos = getArtistasContratados();
-        double descuento = 0.0;
+        double maxTotalArtistaEstrella = 0.0;
         for (ArtistaExterno externo : externos) {
-            if(externo.getTipoRecitalPreferido() != this.tipoRecital)
-                break;
-            double totalExternoAnt = 0.0,totalExterno = 0.0;
+            TipoRecital preferido = externo.getTipoRecitalPreferido();
+            if (preferido == null || preferido != this.tipoRecital) {
+                continue;
+            }
+
+            double totalExterno = 0.0;
+
             for (Cancion cancion : canciones) {
                 if (cancion.getArtistasAsignados().contains(externo)) {
                     totalExterno += externo.getCostoFinal(artistasBase);
                 }
             }
-            descuento = (totalExterno > totalExternoAnt ? totalExterno * 0.25 : descuento);
-        }
-        
 
-        return descuento;
+            if (totalExterno > maxTotalArtistaEstrella) {
+                maxTotalArtistaEstrella = totalExterno;
+            }
+        }
+
+
+        return maxTotalArtistaEstrella * 0.25;
     }
 }

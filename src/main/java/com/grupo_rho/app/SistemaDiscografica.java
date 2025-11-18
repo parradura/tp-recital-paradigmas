@@ -7,16 +7,23 @@ import com.grupo_rho.app.io.DatosIniciales;
 import com.grupo_rho.app.io.GestorJSON;
 import com.grupo_rho.domain.recital.Recital;
 import com.grupo_rho.domain.recital.TipoRecital;
+import com.grupo_rho.app.io.estado.GestorEstadoRecital;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 public class SistemaDiscografica {
 
+    private static final String DATA_DIR = "data";
+    private static final String OUTPUT_DIR = "data/output";
     private final Scanner scanner = new Scanner(System.in);
     private Recital recital;
     private PlanificadorContrataciones planificador;
 
     private final GestorJSON gestorJSON = new GestorJSON();
+    private final GestorEstadoRecital gestorEstado = new GestorEstadoRecital();
 
     public static void main(String[] args) {
         new SistemaDiscografica().run();
@@ -29,8 +36,7 @@ public class SistemaDiscografica {
             cargarDatosDesdeJson();
         } catch (Exception e) {
             System.out.println("No se pudieron cargar los datos desde JSON (" + e.getMessage() + ").");
-            System.out.println("Se usarán datos de demo por defecto.");
-            cargarDatosDemo();
+            //e.printStackTrace();
         }
 
         boolean salir = false;
@@ -47,7 +53,18 @@ public class SistemaDiscografica {
                     case 5 -> contratarParaTodoElRecital();
                     case 6 -> entrenarArtista();
                     case 7 -> listarArtistasContratados();
+                    case 8 -> guardarEstadoInteractivo();
+                    case 9 -> cargarEstadoInteractivo();
                     case 0 -> {
+                        System.out.print("¿Querés guardar el estado del recital antes de salir? (s/n): ");
+                        String resp = leerLinea().trim().toLowerCase();
+
+                        if (resp.equals("s")) {
+                            guardarEstadoInteractivo();
+                        } else {
+                            System.out.println("No se guardó el estado del recital.");
+                        }
+
                         System.out.println("Saliendo del sistema. ¡Gracias!");
                         salir = true;
                     }
@@ -67,6 +84,7 @@ public class SistemaDiscografica {
         }
     }
 
+
     private String leerLinea() {
         return scanner.nextLine();
     }
@@ -80,6 +98,8 @@ public class SistemaDiscografica {
         System.out.println("5) Contratar artistas para todo el recital");
         System.out.println("6) Entrenar artista externo");
         System.out.println("7) Listar artistas contratados");
+        System.out.println("8) Guardar estado del recital con nombre");
+        System.out.println("9) Cargar estado del recital desde archivo");
         System.out.println("0) Salir");
         System.out.println("--------------------------------------------------");
     }
@@ -244,172 +264,32 @@ public class SistemaDiscografica {
     }
 
     // ------------------------------------------------------------
-    // Datos de demo (después se reemplazan con lectura JSON)
+    // Carga de datos
     // ------------------------------------------------------------
 
-    private void cargarDatosDesdeJson() throws java.io.IOException {
+    private void cargarDatosDesdeJson() throws IOException {
         System.out.println("Cargando datos desde JSON...");
 
-        String pathArtistas = "data/artistas.json";
-        String pathRecital = "data/recital.json";
-        String pathArtistasBase = "data/artistas-discografica.json";
+        Path pathArtistas = Path.of(DATA_DIR, "artistas.json");
+        Path pathRecital = Path.of(DATA_DIR, "recital.json");
+        Path pathArtistasBase = Path.of(DATA_DIR, "artistas-discografica.json");
 
         DatosIniciales datos = gestorJSON.cargarDatos(
-                pathArtistas,
-                pathRecital,
-                pathArtistasBase
+                pathArtistas.toString(),
+                pathRecital.toString(),
+                pathArtistasBase.toString()
         );
 
         this.recital = new Recital(
-                "Recital cargado desde JSON",
+                datos.getNombreRecital(),
                 datos.getCanciones(),
                 datos.getArtistasBase(),
                 datos.getArtistasExternos(),
-                TipoRecital.COUNTRY
+                datos.getTipoRecital()
         );
         this.planificador = new PlanificadorContrataciones(this.recital);
 
         System.out.println("Datos cargados correctamente desde JSON.");
-    }
-
-    private void cargarDatosDemo() {
-        System.out.println("Cargando datos de demo...");
-
-        // Artistas base (Brian May, Roger Taylor, John Deacon)
-        Set<String> queen = Set.of("Queen");
-
-        ArtistaBase brian = new ArtistaBase(
-                "Brian May",
-                Set.of(RolTipo.GUITARRA_ELECTRICA),
-                queen
-        );
-        ArtistaBase roger = new ArtistaBase(
-                "Roger Taylor",
-                Set.of(RolTipo.BATERIA),
-                queen
-        );
-        ArtistaBase john = new ArtistaBase(
-                "John Deacon",
-                Set.of(RolTipo.BAJO),
-                queen
-        );
-
-        List<ArtistaBase> base = List.of(brian, roger, john);
-
-        // Artistas externos (George Michael, Elton John, David Bowie, etc.)
-        ArtistaExterno george = new ArtistaExterno(
-                "George Michael",
-                Set.of(RolTipo.VOZ_PRINCIPAL),
-                Set.of("Wham!", "George Michael"),  
-                1000.0,
-                3,
-                TipoRecital.POP
-        );
-
-        ArtistaExterno elton = new ArtistaExterno(
-                "Elton John",
-                Set.of(RolTipo.VOZ_PRINCIPAL, RolTipo.PIANO),
-                Set.of("Elton John Band"),
-                1200.0,
-                2,
-                TipoRecital.ROCK
-        );
-
-        ArtistaExterno bowie = new ArtistaExterno(
-                "David Bowie",
-                Set.of(RolTipo.VOZ_PRINCIPAL),
-                Set.of("Tin Machine", "David Bowie"),
-                1500.0,
-                2,
-                TipoRecital.COUNTRY
-        );
-
-        ArtistaExterno annie = new ArtistaExterno(
-                "Annie Lennox",
-                Set.of(RolTipo.VOZ_PRINCIPAL),
-                Set.of("Eurythmics"),
-                900.0,
-                2,
-                TipoRecital.COUNTRY
-        );
-
-        ArtistaExterno lisa = new ArtistaExterno(
-                "Lisa Stansfield",
-                Set.of(RolTipo.VOZ_PRINCIPAL),
-                Set.of("Lisa Stansfield"),
-                800.0,
-                2,
-                TipoRecital.POP
-        );
-
-        List<ArtistaExterno> externos = new ArrayList<>();
-        externos.add(george);
-        externos.add(elton);
-        externos.add(bowie);
-        externos.add(annie);
-        externos.add(lisa);
-
-        // Canciones del ejemplo
-        Cancion somebodyToLove = new Cancion(
-                "Somebody to Love",
-                crearRolesRequeridos(
-                        RolTipo.VOZ_PRINCIPAL,
-                        RolTipo.GUITARRA_ELECTRICA,
-                        RolTipo.BAJO,
-                        RolTipo.BATERIA,
-                        RolTipo.PIANO
-                )
-        );
-
-        Cancion weWillRockYou = new Cancion(
-                "We Will Rock You",
-                crearRolesRequeridos(
-                        RolTipo.VOZ_PRINCIPAL,
-                        RolTipo.GUITARRA_ELECTRICA,
-                        RolTipo.BAJO,
-                        RolTipo.BATERIA
-                )
-        );
-
-        Cancion theseAreTheDays = new Cancion(
-                "These Are the Days of Our Lives",
-                crearRolesRequeridos(
-                        RolTipo.VOZ_PRINCIPAL,
-                        RolTipo.GUITARRA_ELECTRICA,
-                        RolTipo.BAJO,
-                        RolTipo.BATERIA
-                )
-        );
-
-        // Under Pressure con dos voces principales
-        List<RolRequerido> rolesUnderPressure = new ArrayList<>();
-        rolesUnderPressure.add(new RolRequerido(RolTipo.VOZ_PRINCIPAL));
-        rolesUnderPressure.add(new RolRequerido(RolTipo.VOZ_PRINCIPAL));
-        rolesUnderPressure.add(new RolRequerido(RolTipo.GUITARRA_ELECTRICA));
-        rolesUnderPressure.add(new RolRequerido(RolTipo.BAJO));
-        rolesUnderPressure.add(new RolRequerido(RolTipo.BATERIA));
-
-        Cancion underPressure = new Cancion("Under Pressure", rolesUnderPressure);
-
-        List<Cancion> canciones = List.of(
-                somebodyToLove,
-                weWillRockYou,
-                theseAreTheDays,
-                underPressure
-        );
-
-        this.recital = new Recital("Recital Homenaje a Queen", canciones, base, externos,TipoRecital.ROCK);
-        this.planificador = new PlanificadorContrataciones(this.recital);
-
-        System.out.println("Datos de demo cargados.");
-    }
-
-    private List<RolRequerido> crearRolesRequeridos(RolTipo... tipos) {
-        List<RolRequerido> lista = new ArrayList<>();
-        for (RolTipo t : tipos) {
-            lista.add(new RolRequerido(t));
-        }
-        return lista;
     }
 
     private List<ArtistaExterno> encontrarArtistasEntrenablesParaRol(RolTipo rol) {
@@ -503,6 +383,86 @@ public class SistemaDiscografica {
             }
         } else {
             System.out.println("Podés reintentar la contratación más adelante desde el menú.");
+        }
+    }
+
+    private void asegurarDirectorioData() {
+        java.io.File dir = new java.io.File(DATA_DIR);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                System.out.println("Advertencia: no se pudo crear el directorio de datos '" + DATA_DIR + "'.");
+            }
+        }
+    }
+
+    private List<File> listarArchivosEstado() {
+        File dir = new File(OUTPUT_DIR);
+        if (!dir.exists() || !dir.isDirectory()) {
+            return List.of();
+        }
+
+        File[] archivos = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".json"));
+        if (archivos == null || archivos.length == 0) {
+            return List.of();
+        }
+
+        Arrays.sort(archivos, Comparator.comparing(File::getName));
+        return Arrays.asList(archivos);
+    }
+
+    private void guardarEstadoInteractivo() {
+        System.out.print("Ingresá un nombre de archivo para guardar el estado (sin extensión): ");
+        String nombre = scanner.nextLine().trim();
+
+        if (nombre.isEmpty()) {
+            System.out.println("Nombre vacío. Operación cancelada.");
+            return;
+        }
+
+        asegurarDirectorioData();
+        String path = OUTPUT_DIR + "/" + nombre + ".json";
+
+        try {
+            gestorEstado.guardarEstado(recital, path);
+            System.out.println("Estado del recital guardado en '" + path + "'.");
+        } catch (Exception e) {
+            System.out.println("No se pudo guardar el estado del recital: " + e.getMessage());
+        }
+    }
+
+    private void cargarEstadoInteractivo() {
+        List<File> estados = listarArchivosEstado();
+
+        if (estados.isEmpty()) {
+            System.out.println("No hay estados de recital guardados en la carpeta '" + OUTPUT_DIR + "'.");
+            return;
+        }
+
+        System.out.println("Estados de recital guardados disponibles:");
+        for (int i = 0; i < estados.size(); i++) {
+            File f = estados.get(i);
+            System.out.printf("%d) %s%n", i + 1, f.getName());
+        }
+
+        int opcion = leerEntero("Elegí el número de estado que querés cargar: ");
+        if (opcion < 1 || opcion > estados.size()) {
+            System.out.println("Número inválido. Operación cancelada.");
+            return;
+        }
+
+        File seleccionado = estados.get(opcion - 1);
+        String path = seleccionado.getPath();
+
+        try {
+            Recital cargado = gestorEstado.cargarEstado(path);
+            this.recital = cargado;
+            this.planificador = new PlanificadorContrataciones(this.recital);
+
+            System.out.println("Estado del recital cargado desde '" + path + "'.");
+        } catch (IOException e) {
+            System.out.println("No se pudo leer el archivo: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("El archivo no tiene un estado válido de recital: " + e.getMessage());
         }
     }
 }

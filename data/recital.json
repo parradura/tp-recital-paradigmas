@@ -1,69 +1,38 @@
-[
-  {
-    "titulo": "Somebody to Love",
-    "rolesRequeridos": [
-      "voz principal",
-      "guitarra eléctrica",
-      "bajo",
-      "batería",
-      "piano",
-      "coros"
-    ]
-  },
-  {
-    "titulo": "We Will Rock You",
-    "rolesRequeridos": [
-      "voz principal",
-      "guitarra eléctrica",
-      "bajo",
-      "batería",
-      "coros"
-    ]
-  },
-  {
-    "titulo": "These Are the Days of Our Lives",
-    "rolesRequeridos": [
-      "voz principal",
-      "guitarra eléctrica",
-      "bajo",
-      "batería"
-    ]
-  },
-  {
-    "titulo": "Under Pressure",
-    "rolesRequeridos": [
-      "voz principal",
-      "voz principal",
-      "guitarra eléctrica",
-      "bajo",
-      "batería",
-      "coros"
-    ]
-  },
-  {
-    "titulo": "Love of My Life",
-    "rolesRequeridos": [
-      "voz principal",
-      "guitarra eléctrica",
-      "piano"
-    ]
-  },
-  {
-    "titulo": "Song Solo Piano",
-    "rolesRequeridos": [
-      "piano"
-    ]
-  },
-  {
-    "titulo": "Bohemian Rhapsody",
-    "rolesRequeridos": [
-      "voz principal", "guitarra electrica", "coros", "bateria", "bajo"
-    ]
-  },
-  {
-    "titulo": "I Want to Break Free",
-    "rolesRequeridos": [
-      "voz principal", "guitarra electrica", "coros", "bateria", "bajo"
-    ]
-  }
-]
+{
+  "nombre": "Recital Homenaje a Queen",
+  "tipoRecital": "ROCK",
+  "canciones": [
+    {
+      "titulo": "Somebody to Love",
+      "rolesRequeridos": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO"]
+    },
+    {
+      "titulo": "We Will Rock You",
+      "rolesRequeridos": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA"]
+    },
+    {
+      "titulo": "These Are the Days of Our Lives",
+      "rolesRequeridos": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA"]
+    },
+    {
+      "titulo": "Under Pressure",
+      "rolesRequeridos": ["VOZ_PRINCIPAL", "VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA"]
+    },
+    {
+      "titulo": "Love of My Life",
+      "rolesRequeridos": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "PIANO"]
+    },
+    {
+      "titulo": "Song Solo Piano",
+      "rolesRequeridos": ["PIANO"]
+    },
+    {
+      "titulo": "Bohemian Rhapsody",
+      "rolesRequeridos": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "COROS", "BATERIA", "BAJO"]
+    },
+    {
+      "titulo": "I Want to Break Free",
+      "rolesRequeridos": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "COROS", "BATERIA", "BAJO"]
+    }
+  ]
+}
