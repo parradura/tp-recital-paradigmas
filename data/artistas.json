@@ -1,0 +1,90 @@
+[
+  {
+    "nombre": "Brian May",
+    "roles": ["GUITARRA_ELECTRICA", "COROS"],
+    "bandas": ["Queen"],
+    "costo": 0,
+    "maxCanciones": 100
+  },
+  {
+    "nombre": "Roger Taylor",
+    "roles": ["BATERIA", "COROS"],
+    "bandas": ["Queen"],
+    "costo": 0,
+    "maxCanciones": 100
+  },
+  {
+    "nombre": "John Deacon",
+    "roles": ["BAJO"],
+    "bandas": ["Queen"],
+    "costo": 0,
+    "maxCanciones": 100
+  },
+  {
+    "nombre": "George Michael",
+    "roles": ["VOZ_PRINCIPAL"],
+    "bandas": ["Wham!", "George Michael"],
+    "costo": 1000,
+    "maxCanciones": 3
+  },
+  {
+    "nombre": "Elton John",
+    "roles": ["VOZ_PRINCIPAL", "PIANO"],
+    "bandas": ["Elton John Band"],
+    "costo": 1200,
+    "maxCanciones": 2,
+    "tipoRecitalPreferido": "POP"
+  },
+  {
+    "nombre": "David Bowie",
+    "roles": ["VOZ_PRINCIPAL"],
+    "bandas": ["Tin Machine", "David Bowie"],
+    "costo": 1500,
+    "maxCanciones": 2,
+    "tipoRecitalPreferido": "ROCK"
+  },
+  {
+    "nombre": "Annie Lennox",
+    "roles": ["VOZ_PRINCIPAL", "COROS"],
+    "bandas": ["Eurythmics"],
+    "costo": 900,
+    "maxCanciones": 2
+  },
+  {
+    "nombre": "Lisa Stansfield",
+    "roles": ["VOZ_PRINCIPAL"],
+    "bandas": ["Lisa Stansfield"],
+    "costo": 800,
+    "maxCanciones": 2,
+    "tipoRecitalPreferido": "COUNTRY"
+  },
+  {
+    "nombre": "Invitado Queen Barato",
+    "roles": ["VOZ_PRINCIPAL", "COROS"],
+    "bandas": ["Queen"],
+    "costo": 700,
+    "maxCanciones": 1
+  },
+  {
+    "nombre": "MultiRolista Caro",
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
+    "bandas": ["Session Musicians"],
+    "costo": 3000,
+    "maxCanciones": 4
+  },
+  {
+    "nombre": "SoloBajistaEntrenable",
+    "roles": ["BAJO"],
+    "bandas": ["Local Band"],
+    "costo": 400,
+    "maxCanciones": 5,
+    "tipoRecitalPreferido": "ROCK"
+  },
+  {
+    "nombre": "InutilLogistica",
+    "roles": ["COROS"],
+    "bandas": ["Unknown"],
+    "costo": 2000,
+    "maxCanciones": 0
+  }
+]

@@ -26,4 +26,9 @@ public class ArtistaBase extends Artista {
     public int getMaxCanciones() {
         return Integer.MAX_VALUE;
     }
+
+    @Override
+    public boolean esExterno() {
+        return false;
+    }
 }

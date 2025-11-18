@@ -1,0 +1,74 @@
+[
+  {
+    "nombre": "Brian May",
+    "roles": ["GUITARRA_ELECTRICA", "COROS"],
+    "bandas": ["Queen"],
+    "costo": 0,
+    "maxCanciones": 100,
+    "tipoRecitalPreferido": ""
+  },
+  {
+    "nombre": "Roger Taylor",
+    "roles": ["BATERIA", "COROS"],
+    "bandas": ["Queen"],
+    "costo": 0,
+    "maxCanciones": 100,
+    "tipoRecitalPreferido": ""
+  },
+  {
+    "nombre": "John Deacon",
+    "roles": ["BAJO"],
+    "bandas": ["Queen"],
+    "costo": 0,
+    "maxCanciones": 100,
+    "tipoRecitalPreferido": ""
+  },
+  {
+    "nombre": "Session Player 1",
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
+    "bandas": ["Session Musicians"],
+    "costo": 1000,
+    "maxCanciones": 10,
+    "tipoRecitalPreferido": "Country"
+  },
+  {
+    "nombre": "Session Player 2",
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
+    "bandas": ["Session Musicians"],
+    "costo": 1100,
+    "maxCanciones": 10,
+    "tipoRecitalPreferido": "Pop"
+  },
+  {
+    "nombre": "Session Player 3",
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
+    "bandas": ["Session Musicians"],
+    "costo": 1200,
+    "maxCanciones": 10,
+    "tipoRecitalPreferido": "Rock"
+  },
+  {
+    "nombre": "Session Player 4",
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
+    "bandas": ["Session Musicians"],
+    "costo": 1300,
+    "maxCanciones": 10,
+    "tipoRecitalPreferido": "Country"
+  },
+  {
+    "nombre": "Session Player 5",
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
+    "bandas": ["Session Musicians"],
+    "costo": 1400,
+    "maxCanciones": 10,
+    "tipoRecitalPreferido": "Rock"
+  },
+  {
+    "nombre": "Session Player 6",
+    "roles": ["VOZ_PRINCIPAL", "GUITARRA_ELECTRICA", "BAJO", "BATERIA", "PIANO", "COROS"],
+    "bandas": ["Session Musicians"],
+    "costo": 1500,
+    "maxCanciones": 10,
+    "tipoRecitalPreferido": "Country"
+  }
+]
