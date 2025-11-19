@@ -1,7 +1,7 @@
 package com.grupo_rho.domain.exception;
 
-import com.grupo_rho.domain.Cancion;
-import com.grupo_rho.domain.RolTipo;
+import com.grupo_rho.domain.cancion.Cancion;
+import com.grupo_rho.domain.artista.RolTipo;
 import lombok.Getter;
 
 @Getter
