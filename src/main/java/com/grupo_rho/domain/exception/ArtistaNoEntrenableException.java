@@ -1,6 +1,6 @@
 package com.grupo_rho.domain.exception;
 
-import com.grupo_rho.domain.ArtistaExterno;
+import com.grupo_rho.domain.artista.ArtistaExterno;
 
 public class ArtistaNoEntrenableException extends DomainException {
 
