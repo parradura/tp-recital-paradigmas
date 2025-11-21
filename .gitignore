@@ -38,5 +38,5 @@ build/
 ### Mac OS ###
 .DS_Store
 
-### Outputs ###
-/data/output/
+### Estados guardados ###
+/data/estados/

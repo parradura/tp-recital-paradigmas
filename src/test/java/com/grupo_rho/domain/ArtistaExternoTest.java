@@ -1,5 +1,8 @@
 package com.grupo_rho.domain;
 
+import com.grupo_rho.domain.artista.ArtistaBase;
+import com.grupo_rho.domain.artista.ArtistaExterno;
+import com.grupo_rho.domain.artista.RolTipo;
 import org.junit.jupiter.api.Test;
 
 import com.grupo_rho.domain.recital.TipoRecital;

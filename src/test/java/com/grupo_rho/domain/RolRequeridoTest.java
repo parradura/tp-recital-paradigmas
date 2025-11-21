@@ -1,5 +1,8 @@
 package com.grupo_rho.domain;
 
+import com.grupo_rho.domain.artista.ArtistaBase;
+import com.grupo_rho.domain.artista.RolTipo;
+import com.grupo_rho.domain.cancion.RolRequerido;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;

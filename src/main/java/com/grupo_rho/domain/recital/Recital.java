@@ -1,6 +1,11 @@
 package com.grupo_rho.domain.recital;
 
-import com.grupo_rho.domain.*;
+import com.grupo_rho.domain.artista.Artista;
+import com.grupo_rho.domain.artista.ArtistaBase;
+import com.grupo_rho.domain.artista.ArtistaExterno;
+import com.grupo_rho.domain.artista.RolTipo;
+import com.grupo_rho.domain.cancion.Cancion;
+import com.grupo_rho.domain.cancion.RolRequerido;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -41,8 +46,14 @@ public class Recital {
         return Collections.unmodifiableList(canciones);
     }
 
-    public List<RolRequerido> getRolesFaltantesCancion(Cancion c) {
-        return c.getRolesFaltantes();
+    public Map<RolTipo, Integer> getRolesFaltantesCancion(Cancion c) {
+        Map<RolTipo, Integer> acumulado = new HashMap<>();
+
+        for (RolRequerido rol : c.getRolesFaltantes()) {
+            acumulado.merge(rol.getTipoRol(), 1, Integer::sum);
+        }
+
+        return Collections.unmodifiableMap(acumulado);
     }
 
     public Map<RolTipo, Integer> getRolesFaltantesTotales() {
@@ -98,6 +109,14 @@ public class Recital {
         return total;
     }
 
+    /**
+     * Bonus: un único artista estrella con descuento adicional si su tipo preferido
+     * coincide con el tipo del recital.
+     *
+     * Implementación simple: se toma el artista contratado cuyo total acumulado
+     * en el recital sea máximo, siempre que su tipo preferido coincida.
+     * A ese total se le aplica 25% de descuento.
+     */
     private double descuentoArtistaEstrella(){
         List<ArtistaExterno> externos = getArtistasContratados();
         double maxTotalArtistaEstrella = 0.0;
@@ -119,7 +138,6 @@ public class Recital {
                 maxTotalArtistaEstrella = totalExterno;
             }
         }
-
 
         return maxTotalArtistaEstrella * 0.25;
     }
