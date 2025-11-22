@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -16,7 +17,8 @@ import java.util.Set;
 @Getter
 @ToString(callSuper = true)
 public class ArtistaExterno extends Artista {
-
+    private static final double FACTOR_AUMENTO_ENTRENAMIENTO = 1.5;
+    private static final double FACTOR_DESCUENTO_BANDA = 0.5;
     private double costoBase;
     private final int maxCanciones;
     private int cancionesAsignadasEnRecital;
@@ -36,6 +38,30 @@ public class ArtistaExterno extends Artista {
         this.cancionesAsignadasEnRecital = 0;
         this.rolesEntrenados = new HashSet<>();
         this.tipoRecitalPreferido = tipoRecitalPreferido;
+    }
+
+    public record CostosUnitarios(double costoOriginal,
+                                  double costoTrasEntrenamiento,
+                                  double costoTrasBandas) {}
+
+    public CostosUnitarios calcularCostosUnitariosPorCancion(List<ArtistaBase> artistasBase) {
+        int entrenamientos = this.getRolesEntrenados().size();
+        double factorEntrenamiento = Math.pow(FACTOR_AUMENTO_ENTRENAMIENTO, entrenamientos);
+
+        // Costo base original
+        double costoOriginal = this.getCostoBase() / factorEntrenamiento;
+
+        // Costo base post entrenamientos
+        double costoTrasEntrenamiento = this.getCostoBase();
+
+        // Costo base post entrenamientos con descuento por bandas
+        double costoTrasBandas = this.getCostoFinal(artistasBase);
+
+        return new CostosUnitarios(
+                costoOriginal,
+                costoTrasEntrenamiento,
+                costoTrasBandas
+        );
     }
 
     public Set<RolTipo> getRolesEntrenados() {
@@ -63,7 +89,7 @@ public class ArtistaExterno extends Artista {
         if (!rolesHistoricos.contains(nuevoRol)) {
             rolesHistoricos.add(nuevoRol);
             rolesEntrenados.add(nuevoRol);
-            this.costoBase = this.costoBase * 1.5;
+            this.costoBase = this.costoBase * FACTOR_AUMENTO_ENTRENAMIENTO;
         }
     }
 
@@ -86,7 +112,7 @@ public class ArtistaExterno extends Artista {
         }
 
         if (comparteBandaConBase) {
-            costo = costo * 0.5;
+            costo = costo * FACTOR_DESCUENTO_BANDA;
         }
 
         return costo;

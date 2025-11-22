@@ -70,4 +70,22 @@ public class SelectionHelper {
         }
         return valores[opcion - 1];
     }
+
+    public ArtistaExterno elegirArtistaContratado() {
+        List<ArtistaExterno> contratados = recitalService.getArtistasContratados();
+        if (contratados.isEmpty()) {
+            console.println("Todavía no hay artistas externos contratados.");
+            return null;
+        }
+
+        console.println("Elegí un artista para quitar del recital:");
+        printer.imprimirArtistasContratados(contratados, recitalService.getRecital());
+
+        int opcion = console.leerEntero("Número de artista: ");
+        if (opcion < 1 || opcion > contratados.size()) {
+            console.println("Número inválido.");
+            return null;
+        }
+        return contratados.get(opcion - 1);
+    }
 }

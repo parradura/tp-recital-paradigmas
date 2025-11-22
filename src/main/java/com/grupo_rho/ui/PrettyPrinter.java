@@ -6,6 +6,7 @@ import com.grupo_rho.domain.artista.ArtistaExterno;
 import com.grupo_rho.domain.cancion.Cancion;
 import com.grupo_rho.domain.cancion.RolRequerido;
 import com.grupo_rho.domain.artista.RolTipo;
+import com.grupo_rho.domain.recital.CostoRecitalDetalle;
 import com.grupo_rho.domain.recital.Recital;
 import com.grupo_rho.persistence.estado.EstadoRecitalInfo;
 
@@ -30,51 +31,43 @@ public class PrettyPrinter {
         console.println("══════════════════════════════════════════════");
         console.println("   🎵 RESUMEN DEL RECITAL");
         console.println("══════════════════════════════════════════════");
-        console.println("Nombre      : " + recital.getNombre());
-        console.println("Tipo        : " + recital.getTipoRecital());
-        console.println("");
+        console.println("Nombre : " + recital.getNombre());
+        console.println("Tipo   : " + recital.getTipoRecital());
 
         List<Cancion> canciones = recital.getCanciones();
-        long completas = canciones.stream().filter(Cancion::estaCompleta).count();
+        long completas   = canciones.stream().filter(Cancion::estaCompleta).count();
         long incompletas = canciones.size() - completas;
 
-        console.println("Canciones   : " + canciones.size() +
-                "  (✅ completas: " + completas +
-                " | ⚠ incompletas: " + incompletas + ")");
+        console.println(String.format(
+                "Canciones: %d  (✅ completas: %d | ⚠ incompletas: %d)",
+                canciones.size(), completas, incompletas
+        ));
 
-        double costoTotal = recital.getCostoTotalRecital();
-        console.println(String.format("Costo total : %.2f", costoTotal));
+        // Costos detallados
+        CostoRecitalDetalle costos = recital.calcularCostoDetallado();
 
-        Map<RolTipo, Integer> faltantes = recital.getRolesFaltantesTotales();
-        if (faltantes.isEmpty()) {
-            console.println("Roles faltantes en el recital: ninguno ✅");
+        console.println("");
+        console.println("💰 Costos (resumen):");
+        console.println(String.format(
+                "  Base sin entrenam.: %8.2f | +Entren.: %8.2f | -Bandas: %8.2f",
+                costos.totalSinEntrenamiento(),
+                costos.aumentoPorEntrenamientos(),
+                costos.descuentoPorBandas()
+        ));
+        console.println(String.format(
+                "  -Artista estrella  : %8.2f | TOTAL FINAL: %8.2f",
+                costos.descuentoArtistaEstrella(),
+                costos.totalFinal()
+        ));
+
+        if (costos.artistaEstrella() != null) {
+            console.println("⭐ Artista estrella invitado: " + costos.artistaEstrella().getNombre());
         } else {
-            console.println("Roles faltantes en el recital:");
-            faltantes.forEach((rol, cant) ->
-                    console.println("  - " + rol + ": " + cant));
+            console.println("⭐ Artista estrella invitado: (no aplica)");
         }
 
-        console.println("");
-        imprimirArtistasBase(recital);
-        console.println("");
-        imprimirArtistasContratados(recital.getArtistasContratados());
         console.println("══════════════════════════════════════════════");
         console.println("");
-    }
-
-    private void imprimirArtistasBase(Recital recital) {
-        List<ArtistaBase> base = recital.getArtistasBase();
-        console.println("👥 Artistas base (" + base.size() + "):");
-        if (base.isEmpty()) {
-            console.println("  (no hay artistas base configurados)");
-            return;
-        }
-        for (ArtistaBase a : base) {
-            String roles = a.getRolesHistoricos().stream()
-                    .map(Enum::name)
-                    .collect(Collectors.joining(", "));
-            console.println("  - " + a.getNombre() + " | roles: [" + roles + "]");
-        }
     }
 
     public void imprimirEstadosRecital(List<EstadoRecitalInfo> estados) {
@@ -100,6 +93,32 @@ public class PrettyPrinter {
     // CANCIONES
     // =========================================================
 
+
+    public void imprimirBloqueCancion(Cancion c, Recital recital, int indiceOpcional) {
+        String prefijo = (indiceOpcional > 0) ? (indiceOpcional + ") ") : "- ";
+
+        console.println(prefijo + c.getTitulo());
+        console.println("   Estado : " + (c.estaCompleta() ? "COMPLETA ✅" : "INCOMPLETA ⚠"));
+        console.println(String.format("   Costo  : %.2f", c.getCostoTotal(recital.getArtistasBase())));
+
+        // Roles y artistas
+        for (RolRequerido rol : c.getRolesRequeridos()) {
+            Artista artista = rol.getArtistaAsignado();
+            String nombreArtista = (artista != null) ? artista.getNombre() : "(sin asignar)";
+            String tipoArtista = (artista != null && artista.esExterno()) ? "EXTERNO" : "BASE";
+            console.println(
+                    String.format("   - %-15s -> %-25s (%s)",
+                            rol.getTipoRol(),
+                            nombreArtista,
+                            tipoArtista)
+            );
+        }
+        console.println("");
+    }
+
+    /**
+     * Listado compacto de canciones: 1 línea por canción.
+     */
     public void imprimirListadoCanciones(Recital recital) {
         List<Cancion> canciones = recital.getCanciones();
         console.println("");
@@ -109,74 +128,64 @@ public class PrettyPrinter {
 
         if (canciones.isEmpty()) {
             console.println("(No hay canciones cargadas)");
+            console.println("══════════════════════════════════════════════");
             return;
         }
 
-        console.println(String.format("%-3s %-35s %-12s %-10s %-20s",
-                "#", "Título", "Estado", "Costo", "Roles faltantes"));
+        console.println(String.format(
+                "%-3s %-30s %-11s %-10s %-30s",
+                "#", "Título", "Estado", "Costo", "Roles faltantes"
+        ));
         console.println("─".repeat(90));
 
         int idx = 1;
         for (Cancion c : canciones) {
-            String estado = c.estaCompleta() ? "COMPLETA" : "INCOMPLETA";
-            double costo = c.getCostoTotal(recital.getArtistasBase());
-            List<RolRequerido> faltantes = c.getRolesFaltantes();
-
-            String faltantesStr;
-            if (faltantes.isEmpty()) {
-                faltantesStr = "-";
-            } else {
-                Map<RolTipo, Long> agrupados = faltantes.stream()
-                        .collect(Collectors.groupingBy(RolRequerido::getTipoRol, Collectors.counting()));
-                faltantesStr = agrupados.entrySet().stream()
-                        .map(e -> e.getKey() + "(" + e.getValue() + ")")
-                        .collect(Collectors.joining(", "));
-            }
-
-            console.println(String.format("%-3d %-35s %-12s %-10.2f %-20s",
-                    idx++, c.getTitulo(), estado, costo, faltantesStr));
+            imprimirCancionEnLista(idx++, c, recital);
         }
 
         console.println("══════════════════════════════════════════════");
         console.println("");
     }
 
+    /**
+     * Un ítem de canción para un listado (1 línea).
+     */
+    public void imprimirCancionEnLista(int index, Cancion c, Recital recital) {
+        String estado = c.estaCompleta() ? "COMPLETA" : "INCOMPLETA";
+        double costo  = c.getCostoTotal(recital.getArtistasBase());
+        String faltantesStr = resumirRolesFaltantes(c);
+
+        console.println(String.format(
+                "%-3d %-30s %-11s %-10.2f %-30s",
+                index,
+                recortar(c.getTitulo(), 30),
+                estado,
+                costo,
+                faltantesStr
+        ));
+    }
+
+    /**
+     * Vista detallada de una canción puntual.
+     */
     public void imprimirDetalleCancion(Cancion cancion, Recital recital) {
         console.println("");
         console.println("══════════════════════════════════════════════");
         console.println("   🎼 DETALLE DE CANCIÓN");
         console.println("══════════════════════════════════════════════");
-        console.println("Título       : " + cancion.getTitulo());
-        console.println("Estado       : " + (cancion.estaCompleta() ? "COMPLETA ✅" : "INCOMPLETA ⚠"));
-        console.println(String.format("Costo actual : %.2f",
-                cancion.getCostoTotal(recital.getArtistasBase())));
+        console.println("Título : " + cancion.getTitulo());
+        console.println("Estado : " + (cancion.estaCompleta() ? "COMPLETA ✅" : "INCOMPLETA ⚠"));
+        console.println(String.format("Costo  : %.2f", cancion.getCostoTotal(recital.getArtistasBase())));
         console.println("");
 
-        console.println(String.format("%-15s %-25s %-10s %-10s",
-                "Rol", "Artista asignado", "Tipo", "Base/Ext"));
+        console.println(String.format(
+                "%-15s %-22s %-10s %-8s",
+                "Rol", "Artista asignado", "Tipo", "Base/Ext"
+        ));
         console.println("─".repeat(70));
 
         for (RolRequerido rol : cancion.getRolesRequeridos()) {
-            Artista artista = rol.getArtistaAsignado();
-            String nombreArtista;
-            String tipoArtista;
-            String etiqueta;
-
-            if (artista == null) {
-                nombreArtista = "(sin asignar)";
-                tipoArtista = "-";
-                etiqueta = "-";
-            } else {
-                nombreArtista = artista.getNombre();
-                tipoArtista = artista.getClass().getSimpleName();
-                etiqueta = artista.esExterno() ? "EXTERNO" : "BASE";
-            }
-
-            console.println(String.format("%-15s %-25s %-10s %-10s",
-                    rol.getTipoRol(),
-                    nombreArtista,
-                    tipoArtista,
-                    etiqueta));
+            imprimirRolAsignadoEnDetalle(rol);
         }
 
         console.println("══════════════════════════════════════════════");
@@ -199,48 +208,135 @@ public class PrettyPrinter {
     }
 
     // =========================================================
+    // ARTISTAS BASE
+    // =========================================================
+
+    public void imprimirArtistasBase(Recital recital) {
+        List<ArtistaBase> base = recital.getArtistasBase();
+        console.println("👥 Artistas base (" + base.size() + "):");
+        if (base.isEmpty()) {
+            console.println("  (no hay artistas base configurados)");
+            return;
+        }
+
+        console.println(String.format(
+                "%-3s %-20s %-40s",
+                "#", "Nombre", "Roles"
+        ));
+        console.println("─".repeat(70));
+
+        for (int i = 0; i < base.size(); i++) {
+            imprimirArtistaBaseEnLista(i + 1, base.get(i));
+        }
+        console.println("");
+    }
+
+    /**
+     * Un ítem de artista base para un listado.
+     */
+    public void imprimirArtistaBaseEnLista(int index, ArtistaBase a) {
+        String roles = a.getRolesHistoricos().stream()
+                .map(Enum::name)
+                .collect(Collectors.joining(", "));
+
+        console.println(String.format(
+                "%-3d %-20s %-40s",
+                index,
+                recortar(a.getNombre(), 20),
+                recortar(roles, 40)
+        ));
+    }
+
+    // =========================================================
     // ARTISTAS EXTERNOS
     // =========================================================
 
-    public void imprimirArtistasContratados(List<ArtistaExterno> contratados) {
-        System.out.println("--------------------------------------------------");
+    /**
+     * Listado compacto de artistas externos contratados.
+     */
+    public void imprimirArtistasContratados(List<ArtistaExterno> contratados, Recital recital) {
+        console.println("══════════════════════════════════════════════");
+        console.println("   👤 ARTISTAS EXTERNOS CONTRATADOS");
+        console.println("══════════════════════════════════════════════");
+
         if (contratados.isEmpty()) {
-            System.out.println("Todavía no hay artistas externos contratados.");
-        } else {
-            System.out.println("Artistas externos contratados:");
-            for (ArtistaExterno a : contratados) {
-                System.out.printf(
-                        "- %-20s | roles: %-35s | canciones: %d/%d | costo base: %.2f%n",
-                        a.getNombre(),
-                        a.getRolesHistoricos(),
-                        a.getCancionesAsignadasEnRecital(),
-                        a.getMaxCanciones(),
-                        a.getCostoBase()
-                );
-            }
+            console.println("No hay artistas externos contratados.");
+            console.println("══════════════════════════════════════════════");
+            return;
         }
-        System.out.println("--------------------------------------------------");
+
+        console.println(String.format(
+                "%-3s %-18s %-25s %-17s %-11s %-11s %-11s %-8s",
+                "#", "Nombre", "Roles", "Entrenamientos", "Base orig", "Base act.", "Base final", "Asig/max"
+        ));
+        console.println("─".repeat(110));
+
+        for (int i = 0; i < contratados.size(); i++) {
+            imprimirArtistaExternoEnLista(i + 1, contratados.get(i), recital);
+        }
+
+        console.println("══════════════════════════════════════════════");
+        console.println("");
     }
 
+    /**
+     * Un ítem de artista externo para un listado.
+     */
+    public void imprimirArtistaExternoEnLista(int index, ArtistaExterno a, Recital recital) {
+        String roles = a.getRolesHistoricos().stream()
+                .map(Enum::name)
+                .collect(Collectors.joining(","));
+
+        int entrenamientos       = a.getRolesEntrenados().size();
+        double factorEntrenamiento = Math.pow(1.5, entrenamientos);
+        double baseOriginal      = a.getCostoBase() / factorEntrenamiento;
+        double baseActual        = a.getCostoBase();
+        double unitConDesc       = a.getCostoFinal(recital.getArtistasBase());
+        String asigMax           = a.getCancionesAsignadasEnRecital() + "/" + a.getMaxCanciones();
+
+        console.println(String.format(
+                "%-3d %-18s %-25s %-17d %-11.2f %-11.2f %-11.2f %-8s",
+                index,
+                recortar(a.getNombre(), 18),
+                recortar(roles, 25),
+                entrenamientos,
+                baseOriginal,
+                baseActual,
+                unitConDesc,
+                asigMax
+        ));
+    }
+
+    /**
+     * Detalle multi-línea de un artista externo puntual.
+     */
     public void imprimirResumenArtistaExterno(ArtistaExterno a, Recital recital) {
         String roles = a.getRolesHistoricos().stream()
                 .map(Enum::name)
                 .collect(Collectors.joining(", "));
 
-        double costoUnitario = a.getCostoFinal(recital.getArtistasBase());
-        int cancionesAsignadas = a.getCancionesAsignadasEnRecital();
-        double costoTotalAprox = costoUnitario * cancionesAsignadas;
+        int entrenamientos       = a.getRolesEntrenados().size();
+        double factorEntrenamiento = Math.pow(1.5, entrenamientos);
+        double baseOriginal      = a.getCostoBase() / factorEntrenamiento;
+        double baseActual        = a.getCostoBase();
+        double unitConDesc       = a.getCostoFinal(recital.getArtistasBase());
+        int cancionesAsignadas   = a.getCancionesAsignadasEnRecital();
+        double costoTotalAprox   = unitConDesc * cancionesAsignadas;
 
-        console.println("  - " + a.getNombre());
-        console.println("      Roles          : " + roles);
-        console.println("      Max canciones  : " + a.getMaxCanciones());
-        console.println("      Asignadas      : " + cancionesAsignadas);
-        console.println(String.format("      Costo base     : %.2f", a.getCostoBase()));
-        console.println(String.format("      Costo unit. c/desc.: %.2f", costoUnitario));
-        console.println(String.format("      Costo total aprox  : %.2f", costoTotalAprox));
+        console.println("");
+        console.println("Detalle de artista externo:");
+        console.println("  Nombre           : " + a.getNombre());
+        console.println("  Roles            : " + roles);
+        console.println("  Entrenamientos   : " + entrenamientos);
+        console.println(String.format("  Base original    : %.2f", baseOriginal));
+        console.println(String.format("  Base actual      : %.2f", baseActual));
+        console.println(String.format("  Unit. c/desc.    : %.2f", unitConDesc));
+        console.println("  Asignadas / max  : " + cancionesAsignadas + "/" + a.getMaxCanciones());
+        console.println(String.format("  Costo total aprox: %.2f", costoTotalAprox));
         if (a.getTipoRecitalPreferido() != null) {
-            console.println("      Prefiere recital : " + a.getTipoRecitalPreferido());
+            console.println("  Prefiere recital : " + a.getTipoRecitalPreferido());
         }
+        console.println("");
     }
 
     public void listadoArtistasExternosNumerado(List<ArtistaExterno> externos) {
@@ -261,6 +357,44 @@ public class PrettyPrinter {
     // =========================================================
     // ROLES
     // =========================================================
+
+    private void imprimirRolAsignadoEnDetalle(RolRequerido rol) {
+        Artista artista = rol.getArtistaAsignado();
+
+        String nombreArtista;
+        String tipoArtista;
+        String etiqueta;
+
+        if (artista == null) {
+            nombreArtista = "(sin asignar)";
+            tipoArtista   = "-";
+            etiqueta      = "-";
+        } else {
+            nombreArtista = artista.getNombre();
+            tipoArtista   = artista.getClass().getSimpleName();
+            etiqueta      = artista.esExterno() ? "EXT" : "BASE";
+        }
+
+        console.println(String.format(
+                "%-15s %-22s %-10s %-8s",
+                rol.getTipoRol(),
+                recortar(nombreArtista, 22),
+                tipoArtista,
+                etiqueta
+        ));
+    }
+
+    private String resumirRolesFaltantes(Cancion c) {
+        List<RolRequerido> faltantes = c.getRolesFaltantes();
+        if (faltantes.isEmpty()) return "-";
+
+        Map<RolTipo, Long> agrupados = faltantes.stream()
+                .collect(Collectors.groupingBy(RolRequerido::getTipoRol, Collectors.counting()));
+
+        return agrupados.entrySet().stream()
+                .map(e -> e.getKey() + "(" + e.getValue() + ")")
+                .collect(Collectors.joining(", "));
+    }
 
     public void listadoRolesNumerado(RolTipo[] roles) {
         for (int i = 0; i < roles.length; i++) {
@@ -283,5 +417,15 @@ public class PrettyPrinter {
         }
 
         System.out.println("--------------------------------------------------");
+    }
+
+    // =========================================================
+    // UTILS
+    // =========================================================
+
+    private String recortar(String s, int maxLen) {
+        if (s == null) return "";
+        if (s.length() <= maxLen) return s;
+        return s.substring(0, maxLen - 3) + "...";
     }
 }
