@@ -39,22 +39,17 @@
                     <useModulePath>false</useModulePath>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.grupo_rho.app.SistemaDiscografica</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
-
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <name>JitPack Repository</name>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
     <dependencies>
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -82,6 +77,13 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.17.0</version>
+        </dependency>
+
+        <!-- JPL (Prolog)-->
+        <dependency>
+            <groupId>com.github.SWI-Prolog</groupId>
+            <artifactId>packages-jpl</artifactId>
+            <version>V8.3.2</version>	<!-- version 7.6.1 of JPL -->
         </dependency>
     </dependencies>
 </project>

@@ -30,7 +30,6 @@ public class JsonConfigRecitalRepository implements ConfigRecitalRepository {
 
     @Override
     public Recital cargarRecitalInicial() throws IOException {
-        // Rutas a los archivos de configuración
         Path pathArtistas = Path.of(dataDir, "artistas.json");
         Path pathRecital = Path.of(dataDir, "recital.json");
         Path pathArtistasBase = Path.of(dataDir, "artistas-discografica.json");
@@ -41,7 +40,7 @@ public class JsonConfigRecitalRepository implements ConfigRecitalRepository {
                 new TypeReference<List<ArtistaJsonDTO>>() {}
         );
 
-        // 2) Leer artistas-discografica.json (nombres de artistas base)
+        // 2) Leer artistas-discografica.json
         List<String> nombresBase = mapper.readValue(
                 pathArtistasBase.toFile(),
                 new TypeReference<List<String>>() {}
@@ -56,7 +55,6 @@ public class JsonConfigRecitalRepository implements ConfigRecitalRepository {
                 throw new IllegalArgumentException("Hay un artista en artistas.json sin nombre");
             }
 
-            // Roles del artista (pueden venir como nombres “humanos” o como nombres de enum)
             Set<RolTipo> roles = dto.roles().stream()
                     .map(this::mapRolTipoDesdeArtistasJson)
                     .collect(Collectors.toSet());
@@ -66,10 +64,8 @@ public class JsonConfigRecitalRepository implements ConfigRecitalRepository {
             TipoRecital preferido = mapTipoRecitalNullable(dto.tipoRecitalPreferido());
 
             if (nombresBaseSet.contains(dto.nombre())) {
-                // Artista del sello (base)
                 artistasBase.add(new ArtistaBase(dto.nombre(), roles, bandas));
             } else {
-                // Artista externo
                 artistasExternos.add(new ArtistaExterno(
                         dto.nombre(),
                         roles,
@@ -81,7 +77,7 @@ public class JsonConfigRecitalRepository implements ConfigRecitalRepository {
             }
         }
 
-        // 3) Leer recital.json (con nombre, tipoRecital y canciones)
+        // 3) Leer recital.json
         RecitalJsonDTO recitalDto = mapper.readValue(
                 pathRecital.toFile(),
                 RecitalJsonDTO.class
@@ -100,7 +96,6 @@ public class JsonConfigRecitalRepository implements ConfigRecitalRepository {
         for (CancionJsonDTO cDto : recitalDto.canciones()) {
             List<RolRequerido> rolesRequeridos = new ArrayList<>();
             for (String rolStr : cDto.rolesRequeridos()) {
-                // En recital.json ya usamos directamente los nombre de enum: "VOZ_PRINCIPAL", etc.
                 RolTipo tipoRol = RolTipo.valueOf(rolStr);
                 rolesRequeridos.add(new RolRequerido(tipoRol));
             }
@@ -122,7 +117,7 @@ public class JsonConfigRecitalRepository implements ConfigRecitalRepository {
     // -----------------------------------------------------
 
     /**
-     * Mapea el string del JSON de artistas (roles) a tu enum RolTipo.
+     * Mapea el string del JSON de artistas (roles) al enum RolTipo.
      * Permite:
      *  - nombres de enum ("VOZ_PRINCIPAL")
      *  - nombres “humanos” ("voz principal", "voz principal ", etc.)
