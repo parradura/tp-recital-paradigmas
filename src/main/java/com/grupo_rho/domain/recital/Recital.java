@@ -13,7 +13,7 @@ import java.util.*;
 
 @ToString
 public class Recital {
-
+    private static final double FACTOR_DESCUENTO_ESTRELLA = 0.25;
     @Getter
     private final String nombre;
     private final List<Cancion> canciones;
@@ -80,65 +80,102 @@ public class Recital {
         return Collections.unmodifiableList(contratados);
     }
 
-    public List<ArtistaExterno> getCandidatosParaRol(RolTipo rol) {
-        List<ArtistaExterno> candidatos = new ArrayList<>();
-        for (ArtistaExterno externo : artistasExternosPool) {
-            if (externo.puedeTocar(rol) && externo.puedeTomarOtraCancion()) {
-                candidatos.add(externo);
+    /**
+     * Calcula un detalle completo de costos del recital (basado en el estado actual del recital):
+     * - total sin entrenamientos
+     * - aumento por entrenamientos
+     * - descuento por compartir bandas con artistas base
+     * - descuento por artista estrella
+     * - total final
+     */
+    public CostoRecitalDetalle calcularCostoDetallado() {
+        double totalSinEntrenamiento = 0.0;
+        double totalTrasEntrenamiento = 0.0;
+        double totalTrasBandas = 0.0;
+
+        Map<ArtistaExterno, Double> totalPorExternoDespuesBandas = new HashMap<>();
+
+        for (Cancion c : canciones) {
+            for (RolRequerido rol : c.getRolesRequeridos()) {
+                Artista artista = rol.getArtistaAsignado();
+                if (!(artista instanceof ArtistaExterno ext)) {
+                    continue;
+                }
+
+                ArtistaExterno.CostosUnitarios costos =
+                        ext.calcularCostosUnitariosPorCancion(artistasBase);
+
+                totalSinEntrenamiento   += costos.costoOriginal();
+                totalTrasEntrenamiento  += costos.costoTrasEntrenamiento();
+                totalTrasBandas         += costos.costoTrasBandas();
+
+                totalPorExternoDespuesBandas.merge(
+                        ext,
+                        costos.costoTrasBandas(),
+                        Double::sum
+                );
             }
         }
-        return candidatos;
-    }
 
-    public Map<String, String> getEstadoCanciones() {
-        Map<String, String> estado = new LinkedHashMap<>();
-        for (Cancion c : canciones) {
-            String valor = c.estaCompleta() ? "COMPLETA" : "INCOMPLETA";
-            estado.put(c.getTitulo(), valor);
-        }
-        return estado;
-    }
+        double aumentoPorEntrenamientos = totalTrasEntrenamiento - totalSinEntrenamiento;
+        double descuentoPorBandas = totalTrasEntrenamiento - totalTrasBandas;
 
-    public double getCostoTotalRecital() {
-        double total = 0.0;
-        for (Cancion c : canciones) {
-            total += c.getCostoTotal(artistasBase);
-        }
+        ArtistaEstrellaInfo estrellaInfo =
+                calcularArtistaEstrella(totalPorExternoDespuesBandas);
 
-        total -= descuentoArtistaEstrella();
-        return total;
+        double descuentoEstrella = estrellaInfo.descuento();
+        double totalFinal = totalTrasBandas - descuentoEstrella;
+
+        return new CostoRecitalDetalle(
+                totalSinEntrenamiento,
+                aumentoPorEntrenamientos,
+                descuentoPorBandas,
+                descuentoEstrella,
+                totalFinal,
+                estrellaInfo.artista()
+        );
     }
 
     /**
-     * Bonus: un único artista estrella con descuento adicional si su tipo preferido
-     * coincide con el tipo del recital.
-     *
-     * Implementación simple: se toma el artista contratado cuyo total acumulado
-     * en el recital sea máximo, siempre que su tipo preferido coincida.
-     * A ese total se le aplica 25% de descuento.
+     * Determina el artista estrella (si lo hay) y su descuento:
+     * - Debe tener tipoRecitalPreferido != null
+     * - Debe coincidir con el tipoRecital del recital
+     * - Se elige el que MÁS factura (después de descuentos por bandas)
+     * - El descuento es el 25% de lo que factura ese artista
      */
-    private double descuentoArtistaEstrella(){
-        List<ArtistaExterno> externos = getArtistasContratados();
-        double maxTotalArtistaEstrella = 0.0;
-        for (ArtistaExterno externo : externos) {
-            TipoRecital preferido = externo.getTipoRecitalPreferido();
-            if (preferido == null || preferido != this.tipoRecital) {
+    private ArtistaEstrellaInfo calcularArtistaEstrella(
+            Map<ArtistaExterno, Double> totalPorExternoDespuesBandas
+    ) {
+        ArtistaExterno estrella = null;
+        double totalEstrella = 0.0;
+
+        for (Map.Entry<ArtistaExterno, Double> entry : totalPorExternoDespuesBandas.entrySet()) {
+            ArtistaExterno ext = entry.getKey();
+            double totalExterno = entry.getValue();
+
+            if (ext.getTipoRecitalPreferido() == null) {
+                continue;
+            }
+            if (ext.getTipoRecitalPreferido() != this.tipoRecital) {
                 continue;
             }
 
-            double totalExterno = 0.0;
-
-            for (Cancion cancion : canciones) {
-                if (cancion.getArtistasAsignados().contains(externo)) {
-                    totalExterno += externo.getCostoFinal(artistasBase);
-                }
-            }
-
-            if (totalExterno > maxTotalArtistaEstrella) {
-                maxTotalArtistaEstrella = totalExterno;
+            if (totalExterno > totalEstrella) {
+                totalEstrella = totalExterno;
+                estrella = ext;
             }
         }
 
-        return maxTotalArtistaEstrella * 0.25;
+        double descuento = (estrella != null) ? totalEstrella * FACTOR_DESCUENTO_ESTRELLA : 0.0;
+        return new ArtistaEstrellaInfo(estrella, totalEstrella, descuento);
+    }
+
+
+    /**
+     * Costo total del recital tal como lo usa el algoritmo de backtracking.
+     * Es SIEMPRE consistente con calcularCostoDetallado().
+     */
+    public double getCostoTotalRecital() {
+        return calcularCostoDetallado().totalFinal();
     }
 }

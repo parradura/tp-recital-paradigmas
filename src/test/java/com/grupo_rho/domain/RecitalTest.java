@@ -17,153 +17,123 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RecitalTest {
 
-    private Recital crearRecitalSimple() {
-        ArtistaBase brian = new ArtistaBase(
-                "Brian May",
-                Set.of(RolTipo.GUITARRA_ELECTRICA),
-                Set.of("Queen")
+    @Test
+    void getRolesFaltantesTotalesSumaTodasLasCanciones() {
+        Cancion c1 = new Cancion(
+                "C1",
+                List.of(
+                        new RolRequerido(RolTipo.VOZ_PRINCIPAL),
+                        new RolRequerido(RolTipo.BAJO)
+                )
         );
-        ArtistaBase roger = new ArtistaBase(
-                "Roger Taylor",
-                Set.of(RolTipo.BATERIA),
-                Set.of("Queen")
+        Cancion c2 = new Cancion(
+                "C2",
+                List.of(
+                        new RolRequerido(RolTipo.VOZ_PRINCIPAL),
+                        new RolRequerido(RolTipo.BATERIA)
+                )
         );
-        ArtistaBase john = new ArtistaBase(
-                "John Deacon",
-                Set.of(RolTipo.BAJO),
-                Set.of("Queen")
-        );
-
-        RolRequerido voz = new RolRequerido(RolTipo.VOZ_PRINCIPAL);
-        RolRequerido guitarra = new RolRequerido(RolTipo.GUITARRA_ELECTRICA);
-        RolRequerido bajo = new RolRequerido(RolTipo.BAJO);
-        RolRequerido bateria = new RolRequerido(RolTipo.BATERIA);
-
-        Cancion somebody = new Cancion(
-                "Somebody to Love",
-                List.of(voz, guitarra, bajo, bateria)
-        );
-
-        return new Recital(
-                "Recital Test",
-                List.of(somebody),
-                List.of(brian, roger, john),
+        Recital recital = new Recital(
+                "Test faltantes",
+                List.of(c1, c2),
+                List.of(),
                 List.of(),
                 TipoRecital.ROCK
         );
-    }
 
-    @Test
-    void getRolesFaltantesTotalesCuentaRolesPorTipo() {
-        Recital recital = crearRecitalSimple();
         Map<RolTipo, Integer> faltantes = recital.getRolesFaltantesTotales();
-
-        assertEquals(1, faltantes.get(RolTipo.VOZ_PRINCIPAL));
-        assertEquals(1, faltantes.get(RolTipo.GUITARRA_ELECTRICA));
+        assertEquals(2, faltantes.get(RolTipo.VOZ_PRINCIPAL));
         assertEquals(1, faltantes.get(RolTipo.BAJO));
         assertEquals(1, faltantes.get(RolTipo.BATERIA));
     }
 
     @Test
-    void getArtistasContratadosDevuelveSoloExternosYListaInmutable() {
-        Recital recital = crearRecitalSimple();
-        Cancion cancion = recital.getCanciones().get(0);
-
-        ArtistaBase baseGuitarra = recital.getArtistasBase().get(0);
-        ArtistaExterno cantanteExterno = new ArtistaExterno(
-                "Cantante Externo",
+    void getArtistasContratadosDevuelveExternosSinDuplicar() {
+        ArtistaBase brian = new ArtistaBase("Brian", Set.of(RolTipo.GUITARRA_ELECTRICA), Set.of("Queen"));
+        ArtistaExterno george = new ArtistaExterno(
+                "George",
                 Set.of(RolTipo.VOZ_PRINCIPAL),
-                Set.of("Otra Banda"),
-                500.0,
-                2,
-                TipoRecital.COUNTRY
+                Set.of("Wham!"),
+                1000.0,
+                3,
+                null
         );
 
-        for (RolRequerido rol : cancion.getRolesRequeridos()) {
-            if (rol.getTipoRol() == RolTipo.VOZ_PRINCIPAL) {
-                rol.asignar(cantanteExterno);
-            } else if (rol.getTipoRol() == RolTipo.GUITARRA_ELECTRICA) {
-                rol.asignar(baseGuitarra);
-            }
-        }
+        Cancion c1 = new Cancion(
+                "C1",
+                List.of(new RolRequerido(RolTipo.VOZ_PRINCIPAL))
+        );
+        Cancion c2 = new Cancion(
+                "C2",
+                List.of(new RolRequerido(RolTipo.VOZ_PRINCIPAL))
+        );
+
+        c1.asignarArtista(c1.getRolesRequeridos().get(0), george);
+        c2.asignarArtista(c2.getRolesRequeridos().get(0), george);
+
+        Recital recital = new Recital(
+                "Test contratados",
+                List.of(c1, c2),
+                List.of(brian),
+                List.of(george),
+                TipoRecital.POP
+        );
 
         List<ArtistaExterno> contratados = recital.getArtistasContratados();
         assertEquals(1, contratados.size());
-        assertTrue(contratados.get(0).esExterno());
-        assertEquals("Cantante Externo", contratados.get(0).getNombre());
-
-        assertThrows(UnsupportedOperationException.class, () -> contratados.add(cantanteExterno));
+        assertEquals("George", contratados.get(0).getNombre());
     }
 
     @Test
-    void getEstadoCancionesIndicaCompletaOIncompleta() {
-        Recital recital = crearRecitalSimple();
-        Cancion cancion = recital.getCanciones().get(0);
+    void costoTotalRecitalIncluyeDescuentoPorBandasYArtistaEstrella() {
+        // Setup: un artista estrella con preferencia matching y bastante costo
+        ArtistaBase brian = new ArtistaBase("Brian", Set.of(RolTipo.GUITARRA_ELECTRICA), Set.of("Queen"));
 
-        Map<String, String> estadoInicial = recital.getEstadoCanciones();
-        assertEquals("INCOMPLETA", estadoInicial.get(cancion.getTitulo()));
-
-        // completamos solo con artistas base (no importa costo)
-        ArtistaBase brian = recital.getArtistasBase().get(0);
-        ArtistaBase roger = recital.getArtistasBase().get(1);
-        ArtistaBase john = recital.getArtistasBase().get(2);
-
-        for (RolRequerido rol : cancion.getRolesRequeridos()) {
-            switch (rol.getTipoRol()) {
-                case GUITARRA_ELECTRICA -> rol.asignar(brian);
-                case BATERIA -> rol.asignar(roger);
-                case BAJO -> rol.asignar(john);
-                default -> { /* VOZ_PRINCIPAL queda faltante */ }
-            }
-        }
-
-        // Todavía incompleta porque falta VOZ_PRINCIPAL
-        Map<String, String> estadoMitad = recital.getEstadoCanciones();
-        assertEquals("INCOMPLETA", estadoMitad.get(cancion.getTitulo()));
-
-        // ahora agregamos un externo para la voz
-        ArtistaExterno cantante = new ArtistaExterno(
-                "Cantante Externo",
+        ArtistaExterno estrella = new ArtistaExterno(
+                "Estrella Rock",
                 Set.of(RolTipo.VOZ_PRINCIPAL),
-                Set.of("Otra Banda"),
-                1000.0,
+                Set.of("RockBand"),
+                2000.0,
                 3,
                 TipoRecital.ROCK
         );
-        for (RolRequerido rol : cancion.getRolesRequeridos()) {
-            if (rol.getTipoRol() == RolTipo.VOZ_PRINCIPAL) {
-                rol.asignar(cantante);
-            }
-        }
 
-        Map<String, String> estadoFinal = recital.getEstadoCanciones();
-        assertEquals("COMPLETA", estadoFinal.get(cancion.getTitulo()));
-    }
-
-    @Test
-    void costoTotalRecitalSumaCostosDeTodasLasCanciones() {
-        Recital recital = crearRecitalSimple();
-        Cancion cancion = recital.getCanciones().get(0);
-
-        ArtistaExterno cantanteExterno = new ArtistaExterno(
-                "Cantante Externo",
-                Set.of(RolTipo.VOZ_PRINCIPAL),
-                Set.of("Otra Banda"),
-                1000.0,
-                3,
-                TipoRecital.COUNTRY
+        // Dos canciones donde la estrella canta
+        Cancion c1 = new Cancion(
+                "C1",
+                List.of(
+                        new RolRequerido(RolTipo.VOZ_PRINCIPAL),
+                        new RolRequerido(RolTipo.GUITARRA_ELECTRICA)
+                )
+        );
+        Cancion c2 = new Cancion(
+                "C2",
+                List.of(
+                        new RolRequerido(RolTipo.VOZ_PRINCIPAL),
+                        new RolRequerido(RolTipo.GUITARRA_ELECTRICA)
+                )
         );
 
-        for (RolRequerido rol : cancion.getRolesRequeridos()) {
-            if (rol.getTipoRol() == RolTipo.VOZ_PRINCIPAL) {
-                rol.asignar(cantanteExterno);
-            }
-        }
+        c1.asignarArtista(c1.getRolesRequeridos().get(0), estrella);
+        c1.asignarArtista(c1.getRolesRequeridos().get(1), brian);
+        estrella.registrarAsignacionEnCancion();
 
-        double costoCancion = cancion.getCostoTotal(recital.getArtistasBase());
-        double costoRecital = recital.getCostoTotalRecital();
+        c2.asignarArtista(c2.getRolesRequeridos().get(0), estrella);
+        c2.asignarArtista(c2.getRolesRequeridos().get(1), brian);
+        estrella.registrarAsignacionEnCancion();
 
-        assertEquals(costoCancion, costoRecital, 0.001);
-        assertEquals(1000.0, costoRecital, 0.001);
+        Recital recital = new Recital(
+                "Test estrella",
+                List.of(c1, c2),
+                List.of(brian),
+                List.of(estrella),
+                TipoRecital.ROCK
+        );
+
+        // Costo sin estrella: 2 canciones × 2000 cada una = 4000 (sin bandas compartidas)
+        // Descuento estrella (suponiendo 25%) = 1000
+        // Esperamos: 3000
+        double costo = recital.getCostoTotalRecital();
+        assertEquals(3000.0, costo, 0.0001);
     }
 }
