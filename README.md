@@ -42,30 +42,24 @@ El proyecto sigue una arquitectura en capas con una fuerte separación de respon
 ### Algoritmo de Optimización (Backtracking)
 
 Para la funcionalidad de **"Contratar todo el recital"**, se implementó un algoritmo de **Backtracking** en la clase `PlanificacionService`. Este enfoque explora recursivamente el árbol de decisiones para asignar artistas a roles vacíos, permitiendo encontrar la combinación que minimiza el costo global respetando el límite de `maxCanciones` de cada artista.
+La primer versión utilzaba un algoritmo greedy que iba canción por canción y contrataba por cada rol requerido el artista disponible mas barato, esto no aseguraba el menor costo total del recital y el resultado final dependía mucho del orden en que se recorrian las canciones, luego se cambió por el backtracking que garantiza el menor costo total.
 
 ### Diagrama de Clases (Mermaid)
 
 ```mermaid
 classDiagram
-    %% DOMINIO
+    %% --- DOMINIO ---
     class Artista {
         <<Abstract>>
         -String nombre
-        -Set~RolTipo~ rolesHistoricos
-        -Set~String~ historialBandas
         +getCostoFinal(artistasBase) double*
-        +puedeTocar(rol) boolean
     }
     class ArtistaBase {
         +getCostoFinal() double
     }
     class ArtistaExterno {
         -double costoBase
-        -int maxCanciones
-        -int cancionesAsignadas
-        -TipoRecital tipoPreferido
         +entrenar(rol)
-        +calcularCostosUnitarios()
     }
     
     Artista <|-- ArtistaBase
@@ -73,100 +67,137 @@ classDiagram
 
     class Recital {
         -String nombre
-        -TipoRecital tipo
-        +calcularCostoDetallado()
-        +getRolesFaltantesTotales()
     }
-    
     class Cancion {
         -String titulo
-        +estaCompleta() boolean
-        +asignarArtista(rol, artista)
-        +getCostoTotal() double
     }
-    
     class RolRequerido {
         -RolTipo tipoRol
-        -Artista artistaAsignado
-        +asignar(artista)
-        +estaCubierto() boolean
     }
 
-    Recital "1" *-- "*" Cancion
-    Recital o-- "*" ArtistaBase
-    Recital o-- "*" ArtistaExterno
-    Cancion "1" *-- "*" RolRequerido
-    RolRequerido --> Artista : asignado
+    %% Relaciones de Dominio
+    Recital "1" *-- "*" Cancion : contiene
+    Recital "1" o-- "*" ArtistaExterno : pool
+    Cancion "1" *-- "1..*" RolRequerido : requiere
+    RolRequerido "*" --> "0..1" Artista : asignado
 
-    %% SERVICIOS
+    %% --- SERVICIOS ---
     class RecitalService {
         +contratarParaCancion()
-        +contratarParaTodoElRecital()
-        +entrenarArtista()
     }
-    
     class PlanificacionService {
-        -Recital recital
-        +contratarParaCancion()
         +contratarParaTodoElRecital() 
-        -backtracking()
     }
 
-    RecitalService --> PlanificacionService
-    RecitalService --> Recital
+    RecitalService "1" --> "1" Recital : administra
+    RecitalService "1" --> "1" PlanificacionService : usa
 
-    %% UI & COMMAND PATTERN
+    %% --- COMMANDS & UI ---
     class Menu {
         -Map~int, Command~ comandos
-        +iniciar()
     }
+    class Command { <<Interface>> }
+    class AbstractCommand { <<Abstract>> }
     
-    class Command {
-        <<Interface>>
-        +execute()
-        +getDescription() String
-    }
-    
-    class AbstractCommand {
-        <<Abstract>>
-        #RecitalService service
-        #UiContext ui
-    }
-    
-    class ContratarCancionCommand
-    class ContratarTodoRecitalCommand
-    class GuardarEstadoCommand
-    
-    Menu o-- Command
+    Menu "1" o-- "*" Command : opciones
     Command <|.. AbstractCommand
-    AbstractCommand <|-- ContratarCancionCommand
-    AbstractCommand <|-- ContratarTodoRecitalCommand
+    
+    %% Comandos Específicos
+    class GuardarEstadoCommand { +execute() }
+    class CargarEstadoCommand { +execute() }
+    class CalcularEntrenamientosMinimosCommand { +execute() }
+    
     AbstractCommand <|-- GuardarEstadoCommand
+    AbstractCommand <|-- CargarEstadoCommand
     AbstractCommand <|-- CalcularEntrenamientosMinimosCommand
 
-    %% PERSISTENCIA
-    class EstadoRecitalRepository {
-        <<Interface>>
-        +guardarEstado()
-        +cargarEstado()
-    }
-    class JsonEstadoRecitalRepository {
-        -ObjectMapper mapper
-    }
-    
-    EstadoRecitalRepository <|.. JsonEstadoRecitalRepository
-    GuardarEstadoCommand --> EstadoRecitalRepository
-
-    %% INTEGRACION
-    class CalcularEntrenamientosMinimosCommand {
-        -PrologEntrenamientoClient prologClient
-        +execute()
-    }
-
+    %% --- INTEGRACIONES ---
     class PrologEntrenamientoClient {
-        +calcularEntrenamientosMinimos(faltantes) int
+        +calcularEntrenamientosMinimos()
     }
+    CalcularEntrenamientosMinimosCommand ..> PrologEntrenamientoClient : usa
 
-    %% Relación corregida:
-    CalcularEntrenamientosMinimosCommand --> PrologEntrenamientoClient : usa
+    %% --- PERSISTENCIA ---
+    class EstadoRecitalRepository { <<Interface>> }
+    class JsonEstadoRecitalRepository 
+    EstadoRecitalRepository <|.. JsonEstadoRecitalRepository
+
+    GuardarEstadoCommand --> EstadoRecitalRepository : usa
+    CargarEstadoCommand --> EstadoRecitalRepository : usa
 ```
+---
+
+## 🧠 Integración con Prolog
+
+El sistema integra un módulo lógico para responder preguntas complejas sobre combinatoria de entrenamientos.
+
+* **Archivo:** `src/main/resources/prolog/entrenamientos.pl`
+* **Funcionalidad:** Predicado `entrenamientos_minimos/2`.
+* **Implementación:** Java calcula la matriz de faltantes y delega a Prolog el cálculo de cuántos entrenamientos serían estrictamente necesarios para cubrir el recital sin contratar más externos. Se utiliza la librería **JPL** para la comunicación.
+
+---
+
+## 🚀 Instalación y Ejecución
+
+### Requisitos Previos
+* **Java JDK 21**: El proyecto utiliza características modernas de Java.
+* **Maven 3.x**: Para la gestión de dependencias.
+* **SWI-Prolog**: Debe estar instalado y configurado en el PATH del sistema (necesario para la librería JPL).
+
+### Pasos para ejecutar
+
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone <url-del-repo>
+    cd tp-recital-paradigmas
+    ```
+
+2.  **Compilar el proyecto:**
+    ```bash
+    mvn clean install
+    ```
+
+3.  **Ejecutar la aplicación:**
+    ```bash
+    mvn exec:java -Dexec.mainClass="com.grupo_rho.Main"
+    ```
+
+---
+
+## 📁 Estructura del Proyecto
+
+```text
+src/main/java/com/grupo_rho/
+├── domain/          # Lógica de negocio (Recital, Cancion, Artista)
+├── persistence/     # Repositorios y DTOs (JSON)
+├── service/         # Servicios (Planificacion, RecitalService)
+├── ui/              # Interfaz de usuario (Commands, Printer, Menu)
+├── integration/     # Cliente JPL para Prolog
+└── Main.java        # Punto de entrada
+```
+
+---
+
+## ✅ Estado de Entrega
+- [x] Funcionalidades Core completas.
+
+- [x] Tests unitarios (JUnit 5) cubriendo escenarios de éxito y fallo.
+
+- [x] Persistencia JSON implementada con Jackson.
+
+- [x] Conexión con Prolog funcionando mediante JPL.
+
+- [x] Bonus 1: Artista Estrella.
+
+- [x] Bonus 2: Guardar/Cargar Estado.
+
+- [x] Bonus 3: Arrepentimiento (Quitar artista).
+
+---
+
+## 📚 Referencias
+Refactoring Guru. (s.f.). Patrones de Diseño. Recuperado de https://refactoring.guru/es/design-patterns
+
+JPL7 Documentation. (2024). Java Interface to Prolog. Recuperado de https://jpl7.org/
+
+Jackson Project. (2024). Jackson JSON Processor. GitHub. Recuperado de https://github.com/FasterXML/jackson
