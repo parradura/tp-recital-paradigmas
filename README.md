@@ -4,7 +4,7 @@
 
 Este repositorio contiene la solución al Trabajo Práctico de la materia **Paradigmas de Programación (2025)**. El sistema modela la gestión de una banda temporal para una discográfica, resolviendo la asignación de artistas a canciones mediante Programación Orientada a Objetos, algoritmos de optimización y lógica (Prolog).
 
-## 👥 Integrantes del Equipo
+## 👥 Integrantes del Equipo (Grupo Rho)
 * **Ignacio Parra**
 ---
 
