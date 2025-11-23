@@ -148,7 +148,7 @@ El sistema integra un módulo lógico para responder preguntas complejas sobre c
 
 1.  **Clonar el repositorio:**
     ```bash
-    git clone <url-del-repo>
+    git clone https://github.com/parradura/tp-recital-paradigmas
     cd tp-recital-paradigmas
     ```
 
